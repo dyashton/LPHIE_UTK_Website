@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Milonga&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Milonga&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=IBM+Plex+Sans:ital,wght@0,100..700;1,100..700&family=Milonga&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -22,5 +25,9 @@
   --color-background: var(--background-color);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
+
+  --font-milonga: 'Milonga', cursive;
+  --font-ibm-plex-sans: 'IBM Plex Sans', sans-serif;
+  --font-cinzel: 'Cinzel', serif;
 
 }

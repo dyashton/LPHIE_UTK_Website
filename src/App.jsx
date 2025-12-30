@@ -11,6 +11,7 @@ import ChapterTimeline from './pages/ChapterTimeline.jsx'
 import FamilyTree from './pages/FamilyTree.jsx'
 import Rush from './pages/Rush.jsx'
 import Merch from './pages/Merch.jsx'
+import Brothers from './pages/Brothers.jsx'
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/family-tree" element={<FamilyTree />} />
         <Route path="/rush" element={<Rush />} />
         <Route path="/merch" element={<Merch />} />
+        <Route path="/brothers" element={<Brothers />} />
       </Routes>
     </Layout>
   )
