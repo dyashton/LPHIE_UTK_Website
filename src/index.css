@@ -7,6 +7,7 @@
   width: 100vw;
   height: 100vh;
 
+
   --primary-color: #212121;
   --secondary-color: #5D646B;
   --tertiary-color: #ADB5BD;
@@ -14,6 +15,9 @@
   --background-color: #272727;
   --text-primary: #F2F3F4;
   --text-secondary: #9C9C9C;
+
+  font-family: "IBM Plex Sans", sans-serif;
+  color: var(--text-primary)
 }
 
 @theme {
@@ -30,4 +34,9 @@
   --font-ibm-plex-sans: 'IBM Plex Sans', sans-serif;
   --font-cinzel: 'Cinzel', serif;
 
+}
+
+
+.lineheight-2 {
+  line-height: 2;
 }
