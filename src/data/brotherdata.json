@@ -1,0 +1,62 @@
+{
+    "brothers": [
+        {
+            "firstName": "Javon",
+            "lineName": "Endless",
+            "lastName": "Garcia",
+            "position": "President",
+            "classYear": "Junior",
+            "graduationYear": 2027,
+            "major": "Computer Engineering",
+            "hometown": "Memphis, TN",
+            "funFact": "I love coding and playing btd6.",
+            "imageUrl": "Javon.png",
+            "hobbies": [
+                "Coding",
+                "Gaming",
+                "Balloons"
+            ],
+            "bigsNames": [
+                "Kill 'Em All"
+            ],
+            "littlesNames": [
+                "ZOOLIFE",
+                "Rocco"
+            ],
+            "family": "discography",
+            "crossingClass": "Zeta"
+        },
+        {
+            "firstName": "James",
+            "lineName": "ZOOLIFE",
+            "lastName": "Kargauer",
+            "position": "Active Member",
+            "classYear": "Freshman",
+            "graduationYear": 2029,
+            "major": "Nursing",
+            "hometown": "Memphis, TN",
+            "funFact": "I enjoy cracking.",
+            "imageUrl": "Javon.png",
+            "hobbies": [
+                "Cracking"
+            ],
+            "family": "discography"
+        },
+        {
+            "firstName": "Rocco",
+            "lineName": "Kill 'Em All",
+            "lastName": "Philom",
+            "position": "Secretary",
+            "classYear": "Senior",
+            "graduationYear": 2026,
+            "major": "Mechanical Engineering",
+            "hometown": "Nashville, TN",
+            "funFact": "I love playing video games.",
+            "imageUrl": "Javon.png",
+            "hobbies": [
+                "Playing video games"
+            ],
+            "family": "discography"
+        }
+    ]
+}

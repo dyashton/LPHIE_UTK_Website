@@ -2,3 +2,14 @@
   width: 100vw;
   height: 100vh;
 }
+
+.react-flow__panel {
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+.react-flow__edge-path {
+  stroke-width: 3px;
+  stroke: #4169E1 !important;
+}

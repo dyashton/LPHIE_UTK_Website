@@ -10,12 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-select": "^2.2.6",
     "@tailwindcss/vite": "^4.1.18",
+    "dagre": "^0.8.5",
     "framer-motion": "^12.23.26",
     "lucide-react": "^0.562.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.11.0",
+    "reactflow": "^11.11.4",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {

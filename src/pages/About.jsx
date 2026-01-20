@@ -2,9 +2,9 @@ import Title from "../components/Title"
 
 export default function About() {
     return (
-        <div className="w-full h-full pt-40 px-15">
-            <Title text="Beta Kappa Chapter" />
-            <div className="main-content w-full h-full mt-10 text-xl px-15 ">
+        <div className="w-full h-full pt-40 px-15 flex flex-col items-center justify-start">
+            <Title className={"w-full text-start"} text="Beta Kappa Chapter" />
+            <div className="main-content w-3/4 h-full mt-10 text-xl px-15 pb-20">
                 <h1 className="mt-10 font-cinzel text-3xl mb-3 font-medium text-accent">What is Lambda Phi Epsilon?</h1>
                 <p className="lineheight-2">Lambda Phi Epsilon (ΛΦΕ) is the largest Asian-American interest fraternity in North America. Founded on February 25, 1981, at the University of California, Los Angeles (UCLA), Lambda Phi Epsilon was established to promote Asian-American awareness and provide a supportive community for Asian-American students. The fraternity emphasizes academic excellence, leadership development, cultural awareness, and community service. With chapters across the United States and Canada, Lambda Phi Epsilon continues to foster brotherhood and empower its members to make a positive impact in their communities.</p>
 
