@@ -1,9 +1,10 @@
-import bgimg from "../assets/bgimg.jpeg"
-import bgimg2 from "../assets/bgimg2.jpeg"
+// import bgimg from "../assets/bgimg.jpeg"
+// import bgimg2 from "../assets/bgimg2.jpeg"
 import { motion, AnimatePresence } from "framer-motion"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
+import { BrothersContext } from "../providers/BrothersProvider"
 
-const images = [bgimg, bgimg2];
+// const images = [bgimg, bgimg2];
 
 const recent_events = [
     {
@@ -21,14 +22,15 @@ const recent_events = [
 
 export default function Home() {
     const [imgIndex, setImgIndex] = useState(0);
+    const { homeImages } = useContext(BrothersContext);
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setImgIndex((prevIndex) => (prevIndex + 1) % images.length);
+            setImgIndex((prevIndex) => (prevIndex + 1) % homeImages.length);
         }, 5000); // Change image every 10 seconds
 
         return () => clearInterval(interval);
-    }, []);
+    }, [homeImages]);
     return (
         <div className="w-full h-full relative ">
             <div className="absolute top-0 right-0 w-[35em] h-full z-2 pt-25 pb-10 px-10">
@@ -50,7 +52,7 @@ export default function Home() {
                 <motion.div
                     key={imgIndex}
                     className="absolute w-full h-full "
-                    style={{ backgroundImage: `url(${images[imgIndex]})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5 }}
+                    style={{ backgroundImage: `url(${homeImages[imgIndex]})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5 }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.5 }}
                     exit={{ opacity: 0 }}

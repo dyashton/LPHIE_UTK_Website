@@ -1,23 +1,23 @@
 import Title from "../components/Title"
 import { motion } from "framer-motion"
-const timelineEvents = [
-    {
-        year: "1981",
-        event: "National Founding",
-        description: "The fraternity was founded nationally in 1981, establishing its core values and mission."
-    },
-    {
+import Papa from "papaparse";
 
-        year: "2020",
-        event: "Chapter Founded",
-        description: "Our chapter was founded in 2020 with a mission to foster brotherhood and excellence."
-    },
-    {
-        year: "2020",
-        event: "First Community Service",
-        description: "We organized our first community service event, helping local shelters."
-    },
-]
+const timelineEvents = []
+
+const timeline = Papa.parse("/data/timelinedata.csv", {
+    download: true,
+    header: true,
+    complete: (results) => {
+        console.log("Timeline CSV Data:", results.data);
+        results.data.forEach((item) => {
+            timelineEvents.push({
+                date: item.date,
+                title: item.title,
+                description: item.description,
+            });
+        });
+    }
+});
 
 
 export default function ChapterTimeline() {
@@ -42,7 +42,7 @@ export default function ChapterTimeline() {
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.5, delay: index * 0.3 + 0.2 }}
                                 className="pl-10 relative -top-2">
-                                <h3 className="text-2xl font-bold">{item.year} - {item.event}</h3>
+                                <h3 className="text-2xl font-bold">{item.date} - {item.title}</h3>
                                 <p className="mt-2 text-lg">{item.description}</p>
                             </motion.div>
                         </div>

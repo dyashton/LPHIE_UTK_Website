@@ -1,16 +1,26 @@
+import { useMemo } from "react";
 import ReactFlow, { Background, Controls, MiniMap } from "reactflow";
 import dagre from "dagre";
 import "reactflow/dist/style.css";
 import FamilyTreeNode from "./FamilyTreeNode";
 
+const NODE_WIDTH = 200;
+const NODE_HEIGHT = 60;
+
+const nodeTypes = {
+    familyTreeNode: FamilyTreeNode,
+};
+
 function layout(nodes, edges) {
     const dagreGraph = new dagre.graphlib.Graph();
     dagreGraph.setDefaultEdgeLabel(() => ({}));
-
-    dagreGraph.setGraph({ rankdir: "TB" }); // top → bottom
+    dagreGraph.setGraph({ rankdir: "TB" });
 
     nodes.forEach((node) => {
-        dagreGraph.setNode(node.id, { width: 150, height: 60 });
+        dagreGraph.setNode(node.id, {
+            width: NODE_WIDTH,
+            height: NODE_HEIGHT,
+        });
     });
 
     edges.forEach((edge) => {
@@ -21,100 +31,89 @@ function layout(nodes, edges) {
 
     return nodes.map((node) => {
         const { x, y } = dagreGraph.node(node.id);
-
         return {
             ...node,
             position: {
-                x: x - 75, // width / 2
-                y: y - 30, // height / 2
+                x: x - NODE_WIDTH / 2,
+                y: y - NODE_HEIGHT / 2,
             },
         };
     });
 }
 
+function treeToGraph(roots, hoverUni, hoverFamily) {
+    const nodeMap = new Map();
+    const edgeSet = new Set();
 
+    function traverse(node, hoverUni, hoverFamily) {
+        if (!node || !node.id) return;
+        // Add node if not seen
+        if (!nodeMap.has(node.id)) {
+            nodeMap.set(node.id, {
+                id: node.id,
+                type: "familyTreeNode",
+                data: {
+                    label: node.label,
+                    school: node.school,
+                    family: node.family,
+                    hoverUni: hoverUni,
+                    hoverFamily: hoverFamily,
+                },
+            });
+        }
 
-const nodes = [
-    // Level 1 (Top)
-    {
-        id: "1",
-        type: "familyTreeNode",
-        data: { label: "Justin" },
-        // position: { x: 300, y: 0 },
-    },
+        // Add children + edges
+        if (Array.isArray(node.children)) {
+            node.children.forEach((child) => {
+                if (!child?.id) return;
 
-    // Level 2
-    {
-        id: "2",
-        type: "familyTreeNode",
-        data: { label: "Parent A" },
-        // position: { x: 150, y: 150 },
-    },
-    {
-        id: "3",
-        type: "familyTreeNode",
-        data: { label: "Parent B" },
-        // position: { x: 450, y: 150 },
-    },
+                edgeSet.add(
+                    JSON.stringify({
+                        id: `e-${node.id}-${child.id}`,
+                        source: node.id,
+                        target: child.id,
+                        type: "smoothstep",
+                    })
+                );
 
-    // Level 3
-    {
-        id: "4",
-        type: "familyTreeNode",
-        data: { label: "Child A1" },
-        // position: { x: 50, y: 300 },
-    },
-    {
-        id: "5",
-        type: "familyTreeNode",
-        data: { label: "Child A2" },
-        // position: { x: 250, y: 300 },
-    },
-    {
-        id: "6",
-        type: "familyTreeNode",
-        data: { label: "Child B1" },
-        // position: { x: 350, y: 300 },
-    },
-    {
-        id: "7",
-        type: "familyTreeNode",
-        data: { label: "Child B2" },
-        // position: { x: 550, y: 300 },
-    },
-];
+                traverse(child, hoverUni, hoverFamily);
+            });
+        }
+    }
 
-const edges = [
-    // Grandparent → Parents
-    { id: "e1-2", source: "1", target: "2", type: "smoothstep" },
-    { id: "e1-3", source: "1", target: "3", type: "smoothstep" },
+    roots.forEach((root) => traverse(root, hoverUni, hoverFamily));
 
-    // Parent A → Children
-    { id: "e2-4", source: "2", target: "4", type: "smoothstep" },
-    { id: "e2-5", source: "2", target: "5", type: "smoothstep" },
+    return {
+        nodes: Array.from(nodeMap.values()),
+        edges: Array.from(edgeSet).map(JSON.parse),
+    };
+}
 
-    // Parent B → Children
-    { id: "e3-6", source: "3", target: "6", type: "smoothstep" },
-    { id: "e3-7", source: "3", target: "7", type: "smoothstep" },
-];
+export default function FamilyTreeCanvas({ treeData, hoverUni, hoverFamily }) {
+    const { nodes, edges } = useMemo(() => {
+        if (!Array.isArray(treeData) || treeData.length === 0) {
+            return { nodes: [], edges: [] };
+        }
 
-const nodeTypes = {
-    familyTreeNode: FamilyTreeNode,
-};
+        const graph = treeToGraph(treeData, hoverUni, hoverFamily);
+        return {
+            nodes: layout(graph.nodes, graph.edges),
+            edges: graph.edges,
+        };
+    }, [treeData, hoverUni, hoverFamily]);
 
-const layoutedNodes = layout(nodes, edges);
-
-export default function FamilyTreeCanvas() {
     return (
         <div style={{ width: "100%", height: "100%" }}>
             <ReactFlow
-                nodes={layoutedNodes}
+                nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
                 nodesConnectable={false}
                 nodesDraggable={false}
                 fitView
             >
+                <MiniMap />
+                <Controls />
             </ReactFlow>
         </div>
     );

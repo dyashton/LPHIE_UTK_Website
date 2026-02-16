@@ -6,11 +6,9 @@ import { BrowserRouter } from 'react-router-dom'
 import BrothersProvider from './providers/BrothersProvider.jsx'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <BrowserRouter>
-      <BrothersProvider>
-        <App />
-      </BrothersProvider>
-    </BrowserRouter>
-  </StrictMode>,
+  <BrowserRouter>
+    <BrothersProvider>
+      <App />
+    </BrothersProvider>
+  </BrowserRouter>
 )

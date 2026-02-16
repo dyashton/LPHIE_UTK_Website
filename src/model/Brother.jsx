@@ -12,7 +12,7 @@ const crossingClasses = {
 
 class Brother {
 
-    constructor(firstName, lineName, lastName, position, classYear, graduationYear, major, hometown, funFact, imageUrl, hobbies, bigsNames, littlesNames, crossingClass) {
+    constructor(firstName, lineName, lastName, position, classYear, graduationYear, major, hometown, imageUrl, hobbies, bigsNames, littlesNames, crossingClass, minor, family, PM, PD, lineNumber) {
         this.firstName = firstName;
         this.lineName = lineName;
         this.lastName = lastName;
@@ -21,7 +21,6 @@ class Brother {
         this.graduationYear = graduationYear;
         this.major = major;
         this.hometown = hometown;
-        this.funFact = funFact;
         this.imageUrl = imageUrl;
         this.bigsNames = bigsNames || [];
         this.bigs = [];
@@ -29,6 +28,11 @@ class Brother {
         this.littles = [];
         this.hobbies = hobbies;
         this.crossingClass = crossingClass;
+        this.minor = minor;
+        this.family = family;
+        this.PM = PM;
+        this.PD = PD;
+        this.lineNumber = lineNumber;
     }
 
     getFullName() {
