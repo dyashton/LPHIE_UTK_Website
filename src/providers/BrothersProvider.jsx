@@ -14,14 +14,14 @@ export default function BrothersProvider({ children }) {
     const [rushImages, setRushImages] = useState([]);
 
     function loadBrothersData() {
-        fetch('/data/brothers.json')
+        fetch('data/brothers.json')
             .then(response => response.json())
             .then(data => setBrothers(data.brothers))
             .catch(error => console.error("Error loading brothers data:", error));
     }
 
     function loadBrothersDataCsv() {
-        Papa.parse("/data/brotherdata.csv", {
+        Papa.parse("data/brotherdata.csv", {
             download: true,
             header: true,
             complete: (results) => {
@@ -93,7 +93,7 @@ export default function BrothersProvider({ children }) {
     }
 
     function loadRushImages() {
-        const images = import.meta.glob('/src/assets/rush/*.{png,jpg,jpeg,svg}', {
+        const images = import.meta.glob('../assets/rush/*.{png,jpg,jpeg,svg}', {
             eager: true
         });
 
