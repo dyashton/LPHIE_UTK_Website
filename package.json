@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "start": "node server.js"
+    "start": "node server.js",
+    "heroku-postbuild": "npm install && npm run build"
   },
   "dependencies": {
     "@radix-ui/react-select": "^2.2.6",
