@@ -13,13 +13,6 @@ export default function BrothersProvider({ children }) {
     const [homeImages, setHomeImages] = useState([]);
     const [rushImages, setRushImages] = useState([]);
 
-    function loadBrothersData() {
-        fetch('data/brothers.json')
-            .then(response => response.json())
-            .then(data => setBrothers(data.brothers))
-            .catch(error => console.error("Error loading brothers data:", error));
-    }
-
     function loadBrothersDataCsv() {
         Papa.parse("data/brotherdata.csv", {
             download: true,
@@ -76,7 +69,7 @@ export default function BrothersProvider({ children }) {
                 url.lastIndexOf('.')
             ); // Get filename without extension
 
-            const canonicalName = decodeURIEncodedString(fileName);
+            const canonicalName = decodeURIEncodedString(fileName).split('-')[0];
             imageMap[canonicalName] = url;
         });
 
