@@ -3,7 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import Layout from './components/Layout'
-import { Routes, Route } from 'react-router-dom'
+import { HashRouter, Routes, Route } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import About from './pages/About.jsx'
 import Contact from './pages/Contact.jsx'
@@ -19,13 +19,13 @@ function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/chapter-timeline" element={<ChapterTimeline />} />
-        <Route path="/family-tree" element={<FamilyTree />} />
-        <Route path="/rush" element={<Rush />} />
-        <Route path="/merch" element={<Merch />} />
-        <Route path="/brothers" element={<Brothers />} />
+        <Route path="about" element={<About />} />
+        <Route path="contact" element={<Contact />} />
+        <Route path="chapter-timeline" element={<ChapterTimeline />} />
+        <Route path="family-tree" element={<FamilyTree />} />
+        <Route path="rush" element={<Rush />} />
+        <Route path="merch" element={<Merch />} />
+        <Route path="brothers" element={<Brothers />} />
       </Routes>
     </Layout>
   )

@@ -63,7 +63,7 @@ export default function BrothersProvider({ children }) {
     }
 
     function loadBrothersImages() {
-        const images = import.meta.glob('/src/assets/portraits/*.{png,jpg,jpeg,svg}', {
+        const images = import.meta.glob('../assets/portraits/*.{png,jpg,jpeg,svg}', {
             eager: true
         });
 
@@ -84,7 +84,7 @@ export default function BrothersProvider({ children }) {
     }
 
     function loadHomeImages() {
-        const images = import.meta.glob('/src/assets/home/*.{png,jpg,jpeg,svg}', {
+        const images = import.meta.glob('../assets/home/*.{png,jpg,jpeg,svg}', {
             eager: true
         });
 

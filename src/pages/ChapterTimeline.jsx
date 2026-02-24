@@ -4,7 +4,7 @@ import Papa from "papaparse";
 
 const timelineEvents = []
 
-const timeline = Papa.parse("/data/timelinedata.csv", {
+const timeline = Papa.parse("LPHIE_UTK_Website/data/timelinedata.csv", {
     download: true,
     header: true,
     complete: (results) => {

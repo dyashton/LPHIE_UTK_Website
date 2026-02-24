@@ -58,7 +58,7 @@ export default function FamilyTree() {
 
     // Load CSV inside React
     useEffect(() => {
-        Papa.parse("/data/FamilyTreeData.csv", {
+        Papa.parse("LPHIE_UTK_Website/data/FamilyTreeData.csv", {
             download: true,
             header: true,
             complete: (results) => {

@@ -6,7 +6,7 @@ import Papa from "papaparse";
 
 const upcoming_rush_events = [];
 
-const events_data = Papa.parse("/data/rushData.csv", {
+const events_data = Papa.parse("LPHIE_UTK_Website/data/rushData.csv", {
     download: true,
     header: true,
     complete: (results) => {

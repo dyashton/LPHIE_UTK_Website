@@ -4,5 +4,5 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: '/LPHIE_UTK_Website/',
+  base: '/LPHIE_UTK_Website/', // Set the base path for all assets and links
 })
