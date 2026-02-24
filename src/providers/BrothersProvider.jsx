@@ -109,6 +109,23 @@ export default function BrothersProvider({ children }) {
         console.log("Rush Images loaded:", rushImages);
     }, [brothers, images]);
 
+    useEffect(() => {
+        Object.values(images).forEach(url => {
+            const img = new Image();
+            img.src = url; // forces the browser to load the image immediately
+        });
+
+        homeImages.forEach(url => {
+            const img = new Image();
+            img.src = url;
+        });
+
+        rushImages.forEach(url => {
+            const img = new Image();
+            img.src = url;
+        });
+    }, [images, homeImages, rushImages]);
+
     return (
         <BrothersContext.Provider value={{ brothers, setBrothers, images, setImages, homeImages, setHomeImages, rushImages, setRushImages }}>
             {children}

@@ -87,7 +87,6 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                     </div>
                 </div>
                 <motion.img src={images[brother.lineName]} alt={brother.getFullName()} className="brother-image absolute top-0 right-0 w-[18rem] h-full object-cover"
-                    loading="lazy"
                     variants={fadeMask}
                     initial="hidden"
                     animate={extendedBrother === brother.lineName ? "visible" : "hidden"}
