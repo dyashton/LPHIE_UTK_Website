@@ -50,10 +50,10 @@ export default function Rush() {
                 <AnimatePresence className="relative w-full h-full">
 
                     <motion.div className="absolute top-0 w-full h-full fade-image"
-                        style={{ backgroundImage: `url(${rushImages[imgIndex]})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5 }}
+                        style={{ backgroundImage: `url(${rushImages[imgIndex]})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.75 }}
                         key={imgIndex}
                         initial={{ opacity: 0 }}
-                        animate={{ opacity: 0.5 }}
+                        animate={{ opacity: 0.75 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 1 }}
                     >
