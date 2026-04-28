@@ -4,10 +4,6 @@
 @import "tailwindcss";
 
 :root {
-  width: 100vw;
-  height: 100vh;
-
-
   --primary-color: #212121;
   --secondary-color: #5D646B;
   --tertiary-color: #ADB5BD;
@@ -25,7 +21,30 @@
   --ucf-gold: #CFAF70;
 
   font-family: "IBM Plex Sans", sans-serif;
-  color: var(--text-primary)
+  color: var(--text-primary);
+}
+
+html,
+body {
+  width: 100%;
+  min-height: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background-color);
+  overflow-x: hidden;
+  overscroll-behavior-y: none;
+}
+
+html {
+  overscroll-behavior-y: none;
 }
 
 @theme {

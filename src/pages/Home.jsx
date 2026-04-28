@@ -35,26 +35,12 @@ export default function Home() {
         return () => clearInterval(interval);
     }, [homeImages]);
     return (
-        <div className="w-full h-full relative ">
-            <div className="absolute top-0 right-0 w-[35em] h-full z-2 pt-25 pb-10 px-10">
-                <div className="bg-[rgba(33,33,33,0.7)] w-full h-full px-5 pt-10">
-                    <h1 className="text-text-primary text-4xl font-cinzel w-full mb-5 font-medium">Recent Events</h1>
-                    <ul className="gap-5 flex flex-col">
-                        {recent_events.slice().reverse().map((event, index) => (
-                            <li key={index}>
-                                <h2 className="font-bold text-accent text-xl">{event.title}</h2>
-                                <h3 className="text-text-secondary"> - {event.date} - </h3>
-                                <p>{event.description}</p>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
+        <div className="w-full min-h-dvh relative pb-16">
             <AnimatePresence>
 
                 <MotionDiv
                     key={imgIndex}
-                    className="absolute w-full h-full "
+                    className="absolute inset-0 w-full h-full"
                     style={{ backgroundImage: `url(${homeImages[imgIndex]})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5 }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.5 }}
@@ -62,15 +48,36 @@ export default function Home() {
                     transition={{ duration: 1 }}
                 />
             </AnimatePresence>
-            <div className="relative pt-40 pl-15 z-1 flex flex-col gap-2">
-                <MotionH1
-                    className="text-text-primary text-8xl font-cinzel"
-                    animate={{
-                        color: ["#4169E1", "#F2F3F4", "#4169E1"]
-                    }}
-                    transition={{ duration: 10, ease: "easeInOut", repeat: Infinity }}
-                >Lambda Phi Epsilon</MotionH1>
-                <h1 className="text-text-secondary text-4xl">University of Tennessee, Knoxville</h1>
+            <div className="relative z-10 min-h-dvh pt-24 sm:pt-32 lg:pt-40 px-4 sm:px-8 lg:pl-15 flex flex-col gap-6 md:gap-0">
+                <div className="max-w-4xl">
+                    <MotionH1
+                        className="text-text-primary text-4xl sm:text-6xl lg:text-8xl font-cinzel leading-tight"
+                        animate={{
+                            color: ["#4169E1", "#F2F3F4", "#4169E1"]
+                        }}
+                        transition={{ duration: 10, ease: "easeInOut", repeat: Infinity }}
+                    >
+                        Lambda Phi Epsilon
+                    </MotionH1>
+                    <h1 className="text-text-secondary text-xl sm:text-2xl lg:text-4xl mt-2">
+                        University of Tennessee, Knoxville
+                    </h1>
+                </div>
+
+                <div className="w-full max-w-2xl md:max-w-md md:absolute md:top-28 lg:top-36 md:right-8 lg:right-10 bg-[rgba(33,33,33,0.7)] px-5 py-6 rounded-md md:max-h-[60vh] md:overflow-auto">
+                    <h2 className="text-text-primary text-2xl sm:text-3xl font-cinzel w-full mb-4 font-medium">
+                        Recent Events
+                    </h2>
+                    <ul className="gap-5 flex flex-col">
+                        {recent_events.slice().reverse().map((event, index) => (
+                            <li key={index}>
+                                <h3 className="font-bold text-accent text-lg sm:text-xl">{event.title}</h3>
+                                <div className="text-text-secondary text-sm sm:text-base">- {event.date} -</div>
+                                <p className="text-sm sm:text-base">{event.description}</p>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             </div>
         </div>
     )

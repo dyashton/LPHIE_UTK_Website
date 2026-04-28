@@ -3,13 +3,22 @@ import LPHIELogo from "../assets/logo.png"
 
 export default function Layout({ children }) {
     return (
-        <div className="w-full h-full flex flex-col relative bg-background overflow-auto">
-            <div className="w-full h-full absolute top-0 left-0" style={{ backgroundImage: `url(${LPHIELogo})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundSize: '50%', opacity: 0.8 }} />
+        <div className="w-full min-h-dvh flex flex-col relative bg-background overflow-x-hidden">
+            <div
+                className="fixed inset-0 w-full h-full pointer-events-none"
+                style={{
+                    backgroundImage: `url(${LPHIELogo})`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'center',
+                    backgroundSize: 'clamp(220px, 55vw, 520px)',
+                    opacity: 0.8
+                }}
+            />
 
-            <div className="absolute top-0 left-0 w-full z-2">
+            <div className="absolute top-0 left-0 w-full z-20">
                 <Navbar />
             </div>
-            <div className="relative z-1 flex-1">
+            <div className="relative z-10 flex-1">
                 {children}
             </div>
         </div>

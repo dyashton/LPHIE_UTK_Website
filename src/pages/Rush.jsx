@@ -8,12 +8,12 @@ const MotionDiv = motion.div;
 
 function displayRushEvents(events) {
     if (!events || events.length === 0) {
-        return <p className="pl-20 text-3xl font-cinzel">Rush has ended for this semester. Please check back later or contact us <a href="https://www.instagram.com/utklphie/" target="blank" className="text-accent cursor-pointer">@utklphie</a></p>;
+        return <p className="px-4 sm:px-8 lg:pl-20 text-lg sm:text-2xl font-cinzel">Rush has ended for this semester. Please check back later or contact us <a href="https://www.instagram.com/utklphie/" target="blank" className="text-accent cursor-pointer">@utklphie</a></p>;
     }
     return events.map((event, index) => (
-        <div key={index} className="rush-event mb-8 pl-20 relative">
-            <h3 className="text-2xl font-bold">{event.date} - {event.title}</h3>
-            <p className="mt-2 text-lg">{event.description}</p>
+        <div key={index} className="rush-event mb-8 px-4 sm:px-8 lg:pl-20 relative">
+            <h3 className="text-lg sm:text-2xl font-bold">{event.date} - {event.title}</h3>
+            <p className="mt-2 text-base sm:text-lg">{event.description}</p>
         </div>
     ));
 }
@@ -51,9 +51,9 @@ export default function Rush() {
         return () => clearInterval(interval);
     }, [rushImages]);
     return (
-        <div className="w-full h-full relative">
-            <Title text="Rush" className="absolute top-40 left-15 z-20" />
-            <div className="relative w-full h-3/4 ">
+        <div className="w-full min-h-dvh relative">
+            <div className="relative w-full h-[60vh] sm:h-[75vh]">
+                <Title text="Rush" className="absolute top-28 sm:top-40 left-4 sm:left-8 lg:left-15 z-20" />
                 <AnimatePresence className="relative w-full h-full">
 
                     <MotionDiv className="absolute top-0 w-full h-full fade-image"
@@ -69,8 +69,10 @@ export default function Rush() {
                 </AnimatePresence>
             </div>
             <div className="main-content relative">
-                <Title text="Upcoming Rush Events" className="pl-15 pt-20" />
-                <div className="rush-events mt-10 p-5">
+                <div className="pt-10 sm:pt-16 px-0">
+                    <Title text="Upcoming Rush Events" className="px-4 sm:px-8 lg:pl-15" />
+                </div>
+                <div className="rush-events mt-6 sm:mt-10 pb-16">
                     {displayRushEvents(upcomingRushEvents)}
                 </div>
             </div>
