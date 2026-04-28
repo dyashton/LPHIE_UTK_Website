@@ -74,7 +74,7 @@ export default function Navbar() {
     }, [desktopDropdownOpen])
 
     return (
-        <nav className="bg-accent/95 text-white backdrop-blur-md border-b border-white/10 shadow-sm flex items-start justify-between px-4 py-4 sm:px-8 sm:py-6 relative">
+        <nav className="bg-linear-to-b from-accent to-transparent text-white flex items-start justify-between px-4 py-4 sm:px-8 sm:py-6 relative">
             <Link to="/" onClick={() => setMobileOpen(false)}>
                 <span className="text-3xl sm:text-5xl font-cinzel leading-none" aria-label="Lambda Phi Epsilon">ΛΦΕ</span>
             </Link>
