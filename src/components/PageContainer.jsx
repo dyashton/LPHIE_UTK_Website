@@ -8,7 +8,7 @@ export default function PageContainer({
     <div
       className={[
         "w-full",
-        paddedTop ? "pt-28 sm:pt-36" : "",
+        paddedTop ? "pt-6 sm:pt-8" : "",
         "px-4 sm:px-8",
         className,
       ].join(" ")}

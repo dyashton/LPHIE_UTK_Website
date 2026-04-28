@@ -85,7 +85,7 @@ export default function Home() {
                     </p>
                 </div>
 
-                <div className="w-full max-w-2xl md:max-w-md md:absolute md:top-28 lg:top-36 md:right-8 lg:right-10 bg-[rgba(33,33,33,0.7)] px-5 py-6 rounded-md md:max-h-[60vh] md:overflow-auto">
+                <div className="w-full max-w-2xl md:max-w-md md:absolute md:top-6 lg:top-8 md:right-8 lg:right-10 bg-[rgba(33,33,33,0.7)] px-5 py-6 rounded-md md:max-h-[60vh] md:overflow-auto">
                     <h2 className="text-text-primary text-2xl sm:text-3xl font-cinzel w-full mb-4 font-medium">
                         Recent Events
                     </h2>

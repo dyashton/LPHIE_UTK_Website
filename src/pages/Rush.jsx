@@ -83,14 +83,14 @@ export default function Rush() {
                 <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-primary/40 via-transparent to-background" />
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-48 bg-linear-to-t from-background via-background/80 to-transparent" />
 
-                <PageContainer paddedTop={false} className="relative z-20 pt-24 sm:pt-32">
+                <PageContainer paddedTop={false} className="relative z-20 pt-8 sm:pt-10">
                     <Title as="h1" text="Rush" />
                 </PageContainer>
             </div>
 
             {/* Overlaps hero: card sits on top of the background */}
             <PageContainer className="relative z-30 -mt-14 sm:-mt-20 md:-mt-24 pb-16">
-                <div className="rounded-2xl border-2 border-accent/50 bg-primary/90 backdrop-blur-md shadow-[0_-8px_40px_rgba(0,0,0,0.35)] px-5 py-6 sm:px-8 sm:py-8">
+                <div className="rounded-2xl bg-primary/90 backdrop-blur-md shadow-[0_-8px_40px_rgba(0,0,0,0.35)] px-5 py-6 sm:px-8 sm:py-8">
                     <Title as="h2" className="!text-2xl sm:!text-4xl lg:!text-5xl" text="Upcoming Rush Events" />
                     <div className="rush-events mt-5 sm:mt-7">
                         {displayRushEvents(upcomingRushEvents)}

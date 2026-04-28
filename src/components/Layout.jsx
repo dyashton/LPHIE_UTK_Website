@@ -3,7 +3,7 @@ import LPHIELogo from "../assets/logo.svg"
 
 export default function Layout({ children }) {
     return (
-        <div className="w-full min-h-dvh flex flex-col relative bg-background overflow-x-hidden">
+        <div className="w-full min-h-dvh flex flex-col relative bg-background">
             <div
                 className="fixed inset-0 w-full h-full pointer-events-none"
                 style={{
@@ -15,10 +15,10 @@ export default function Layout({ children }) {
                 }}
             />
 
-            <div className="absolute top-0 left-0 w-full z-20">
+            <header className="sticky top-0 z-50 w-full shrink-0">
                 <Navbar />
-            </div>
-            <div className="relative z-10 flex-1">
+            </header>
+            <div className="relative z-10 flex-1 min-w-0 overflow-x-hidden">
                 {children}
             </div>
         </div>
