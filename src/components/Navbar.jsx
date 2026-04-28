@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 import { ChevronUp, Menu, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 
 const dropdownItems = [
     { name: 'Brothers', path: '/brothers' },
@@ -12,51 +12,134 @@ const dropdownItems = [
 export default function Navbar() {
     const [mobileOpen, setMobileOpen] = useState(false)
     const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false)
+    const [desktopDropdownOpen, setDesktopDropdownOpen] = useState(false)
+    const menuButtonRef = useRef(null)
+    const mobileFirstLinkRef = useRef(null)
+    const desktopDropdownRef = useRef(null)
+    const desktopDropdownId = useId()
+    const location = useLocation()
+
+    const linkBaseClassName = "rounded-sm px-2 py-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 hover:text-white/90"
+    const navLinkClassName = ({ isActive }) =>
+        `${linkBaseClassName} ${isActive ? "text-white underline underline-offset-8 decoration-white/70" : ""}`
+
+    const desktopItems = useMemo(() => ([
+        { name: 'Home', path: '/' },
+        { name: 'Rush', path: '/rush' },
+        { name: 'Merch', path: '/merch' },
+        { name: 'Contact', path: '/contact' },
+    ]), [])
 
     useEffect(() => {
         function onKeyDown(e) {
-            if (e.key === 'Escape') setMobileOpen(false)
+            if (e.key === 'Escape') {
+                setMobileOpen(false)
+                setMobileDropdownOpen(false)
+                setDesktopDropdownOpen(false)
+                if (menuButtonRef.current) menuButtonRef.current.focus()
+            }
         }
         window.addEventListener('keydown', onKeyDown)
         return () => window.removeEventListener('keydown', onKeyDown)
     }, [])
 
+    useEffect(() => {
+        // Close menus on navigation (async to satisfy lint rule)
+        queueMicrotask(() => {
+            setMobileOpen(false)
+            setMobileDropdownOpen(false)
+            setDesktopDropdownOpen(false)
+        })
+    }, [location.pathname])
+
+    useEffect(() => {
+        // Basic focus management for mobile menu
+        if (!mobileOpen) return;
+        const t = setTimeout(() => {
+            mobileFirstLinkRef.current?.focus?.()
+        }, 0)
+        return () => clearTimeout(t)
+    }, [mobileOpen])
+
+    useEffect(() => {
+        function onPointerDown(e) {
+            if (!desktopDropdownOpen) return;
+            const el = desktopDropdownRef.current
+            if (el && !el.contains(e.target)) {
+                setDesktopDropdownOpen(false)
+            }
+        }
+        document.addEventListener('pointerdown', onPointerDown)
+        return () => document.removeEventListener('pointerdown', onPointerDown)
+    }, [desktopDropdownOpen])
+
     return (
-        <nav className="bg-linear-to-b from-accent to-transparent text-white flex items-start justify-between px-4 py-4 sm:px-8 sm:py-6">
+        <nav className="bg-linear-to-b from-accent to-transparent text-white flex items-start justify-between px-4 py-4 sm:px-8 sm:py-6 relative">
             <Link to="/" onClick={() => setMobileOpen(false)}>
-                <h1 className="text-3xl sm:text-5xl font-cinzel leading-none">ΛΦΕ</h1>
+                <span className="text-3xl sm:text-5xl font-cinzel leading-none" aria-label="Lambda Phi Epsilon">ΛΦΕ</span>
             </Link>
 
             {/* Desktop nav */}
             <ul className="hidden md:flex items-center gap-8 lg:gap-12 text-lg lg:text-2xl">
-                <li><Link to="/">Home</Link></li>
-                <li><Link to="/rush">Rush</Link></li>
-                <li className="flex flex-col justify-center items-start gap-2 group relative">
-                    <div className="flex flex-row justify-center items-center gap-2 cursor-pointer select-none">
-                        <ChevronUp className="chevron-icon group-hover:rotate-180 transition-transform duration-300" />
-                        <p>UTK Chapter</p>
-                    </div>
-                    <div className="absolute top-full left-0 w-fit h-fit p-4 bg-primary border-accent border-2 rounded-md hidden group-hover:block">
-                        <ul className="flex flex-col space-y-2">
-                            {dropdownItems.map((item) => (
-                                <li key={item.name}>
-                                    <Link to={item.path} className="text-lg whitespace-nowrap">{item.name}</Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
+                {desktopItems.map((item) => (
+                    <li key={item.path}>
+                        <NavLink to={item.path} className={navLinkClassName}>
+                            {item.name}
+                        </NavLink>
+                    </li>
+                ))}
+
+                <li ref={desktopDropdownRef} className="relative">
+                    <button
+                        type="button"
+                        className={`${linkBaseClassName} inline-flex items-center gap-2`}
+                        aria-haspopup="menu"
+                        aria-expanded={desktopDropdownOpen}
+                        aria-controls={desktopDropdownId}
+                        onClick={() => setDesktopDropdownOpen((v) => !v)}
+                    >
+                        <ChevronUp className={`h-5 w-5 transition-transform duration-200 ${desktopDropdownOpen ? "rotate-180" : ""}`} />
+                        <span>UTK Chapter</span>
+                    </button>
+                    {desktopDropdownOpen && (
+                        <div
+                            id={desktopDropdownId}
+                            role="menu"
+                            className="absolute top-full left-0 mt-2 w-fit h-fit p-4 bg-primary border-accent border-2 rounded-md shadow-lg"
+                        >
+                            <ul className="flex flex-col space-y-2">
+                                {dropdownItems.map((item) => (
+                                    <li key={item.name} role="none">
+                                        <NavLink
+                                            to={item.path}
+                                            role="menuitem"
+                                            className={({ isActive }) => `${linkBaseClassName} text-lg whitespace-nowrap block ${isActive ? "underline underline-offset-8 decoration-accent/70" : ""}`}
+                                            onClick={() => setDesktopDropdownOpen(false)}
+                                        >
+                                            {item.name}
+                                        </NavLink>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </li>
-                <li><Link to="/merch">Merch</Link></li>
-                <li><Link to="/contact">Contact</Link></li>
             </ul>
 
             {/* Mobile menu button */}
             <button
                 type="button"
+                ref={menuButtonRef}
                 className="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40"
                 aria-label={mobileOpen ? "Close menu" : "Open menu"}
                 aria-expanded={mobileOpen}
-                onClick={() => setMobileOpen((v) => !v)}
+                onClick={() => {
+                    setMobileOpen((v) => {
+                        const next = !v
+                        if (next) setMobileDropdownOpen(false)
+                        return next
+                    })
+                }}
             >
                 {mobileOpen ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
             </button>
@@ -65,8 +148,8 @@ export default function Navbar() {
             {mobileOpen && (
                 <div className="md:hidden absolute top-full left-0 w-full bg-primary/95 backdrop-blur border-t border-white/10">
                     <div className="px-4 py-4 flex flex-col gap-3 text-lg">
-                        <Link to="/" onClick={() => setMobileOpen(false)} className="py-2">Home</Link>
-                        <Link to="/rush" onClick={() => setMobileOpen(false)} className="py-2">Rush</Link>
+                        <NavLink ref={mobileFirstLinkRef} to="/" onClick={() => setMobileOpen(false)} className={({ isActive }) => `py-2 ${isActive ? "underline underline-offset-8 decoration-white/70" : ""}`}>Home</NavLink>
+                        <NavLink to="/rush" onClick={() => setMobileOpen(false)} className={({ isActive }) => `py-2 ${isActive ? "underline underline-offset-8 decoration-white/70" : ""}`}>Rush</NavLink>
 
                         <button
                             type="button"
@@ -87,8 +170,8 @@ export default function Navbar() {
                             </div>
                         )}
 
-                        <Link to="/merch" onClick={() => setMobileOpen(false)} className="py-2">Merch</Link>
-                        <Link to="/contact" onClick={() => setMobileOpen(false)} className="py-2">Contact</Link>
+                        <NavLink to="/merch" onClick={() => setMobileOpen(false)} className={({ isActive }) => `py-2 ${isActive ? "underline underline-offset-8 decoration-white/70" : ""}`}>Merch</NavLink>
+                        <NavLink to="/contact" onClick={() => setMobileOpen(false)} className={({ isActive }) => `py-2 ${isActive ? "underline underline-offset-8 decoration-white/70" : ""}`}>Contact</NavLink>
                     </div>
                 </div>
             )}

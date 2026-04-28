@@ -2,6 +2,7 @@ import Title from "../components/Title"
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import Papa from "papaparse";
+import PageContainer from "../components/PageContainer"
 
 const MotionDiv = motion.div;
 
@@ -30,9 +31,9 @@ export default function ChapterTimeline() {
     }, []);
 
     return (
-        <div className="pt-40 pl-15">
-            <Title text="Chapter Timeline" />
-            <div className="timeline-container mt-10 p-5">
+        <PageContainer className="pb-16">
+            <Title as="h1" text="Chapter Timeline" />
+            <div className="timeline-container mt-8 p-2 sm:p-5">
                 <MotionDiv
                     initial={{ height: 0 }}
                     animate={{ height: "auto" }}
@@ -58,6 +59,6 @@ export default function ChapterTimeline() {
                     <div className="w-5 h-5 rounded-full bg-text-primary absolute bottom-0 -left-3" />
                 </MotionDiv>
             </div>
-        </div>
+        </PageContainer>
     )
 }

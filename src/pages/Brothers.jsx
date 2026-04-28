@@ -1,5 +1,5 @@
 import Title from "../components/Title"
-import JavonImg from "../assets/portraits/Endless.png"
+import PageContainer from "../components/PageContainer"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useContext } from "react"
 import { BrothersContext } from "../providers/BrothersContext"
@@ -52,6 +52,7 @@ const fadeMask = {
 function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExtendedBrother }) {
     const firstName = brother.firstName
     const lastName = brother.lastName;
+    const imgSrc = images?.[brother.lineName] || null;
     // const [isExtended, setIsExtended] = useState(false);
 
 
@@ -89,11 +90,23 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
 
                     </div>
                 </div>
-                <MotionImg src={images[brother.lineName]} alt={brother.getFullName()} className="brother-image absolute top-0 right-0 w-[18rem] h-full object-cover"
-                    variants={fadeMask}
-                    initial="hidden"
-                    animate={extendedBrother === brother.lineName ? "visible" : "hidden"}
-                    transition={{ duration: 0.6, ease: "easeOut" }} />
+                {imgSrc ? (
+                    <MotionImg
+                        src={imgSrc}
+                        alt={brother.getFullName()}
+                        className="brother-image absolute top-0 right-0 w-[18rem] h-full object-cover"
+                        variants={fadeMask}
+                        initial="hidden"
+                        animate={extendedBrother === brother.lineName ? "visible" : "hidden"}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                    />
+                ) : (
+                    <div className="absolute top-0 right-0 w-[18rem] h-full bg-linear-to-b from-secondary/40 via-primary to-primary flex items-center justify-center">
+                        <div className="text-5xl font-cinzel text-text-primary/70 select-none">
+                            {(firstName?.[0] || "").toUpperCase()}{(lastName?.[0] || "").toUpperCase()}
+                        </div>
+                    </div>
+                )}
                 <div className="relative z-10 h-full flex flex-col items-center justify-end px-4 bg-linear-to-b from-[rgba(0,0,0,0)] to-[rgba(33,33,33,1.5)] text-text-primary pb-6">
                     <div className="brother-position text-xl font-medium w-full">{firstName}{" "}
                         <span className="text-accent font-cinzel">"{brother.lineName}"</span>{" "}
@@ -162,7 +175,6 @@ export default function Brothers() {
 
 
     const jumpToBrother = (brother) => {
-        console.log("Attempting to jump to:", brother.lineName);
         setExtendedBrother(brother.lineName);
         const element = document.getElementById(brother.lineName);
         if (element) {
@@ -172,11 +184,12 @@ export default function Brothers() {
 
 
     return (
-        <div className="w-full h-full pt-40 pl-15">
-            <Title text="Brothers" />
-            <div className="w-full h-fit p-10">
-                <Title text="Executive Board" />
-                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-10 pt-10">
+        <PageContainer className="pb-20" maxWidthClassName="max-w-7xl">
+            <Title as="h1" text="Brothers" />
+
+            <div className="w-full h-fit mt-10">
+                <Title as="h2" text="Executive Board" />
+                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-8 pt-8">
                     {executiveBoard.map((brother) => (
                         <BrotherCard
                             key={brother.getFullName()}
@@ -189,9 +202,9 @@ export default function Brothers() {
                     ))}
                 </div>
             </div>
-            <div className="w-full h-fit p-10">
-                <Title text="Active Brothers" />
-                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-10 pt-10">
+            <div className="w-full h-fit mt-12">
+                <Title as="h2" text="Active Brothers" />
+                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-8 pt-8">
                     {activeBrothers.map((brother) => (
                         <BrotherCard
                             key={brother.getFullName()}
@@ -204,9 +217,9 @@ export default function Brothers() {
                     ))}
                 </div>
             </div>
-            <div className="w-full h-fit p-10">
-                <Title text="Alumni Brothers" />
-                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-10 pt-10">
+            <div className="w-full h-fit mt-12">
+                <Title as="h2" text="Alumni Brothers" />
+                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-8 pt-8">
                     {alumniBrothers.map((brother) => (
                         <BrotherCard
                             key={brother.getFullName()}
@@ -219,9 +232,9 @@ export default function Brothers() {
                     ))}
                 </div>
             </div>
-            <div className="w-full h-fit p-10">
-                <Title text="Charter Command Class" />
-                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-10 pt-10">
+            <div className="w-full h-fit mt-12">
+                <Title as="h2" text="Charter Command Class" />
+                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-8 pt-8">
                     {charterClass.map((brother) => (
                         <BrotherCard
                             key={brother.getFullName()}
@@ -234,9 +247,9 @@ export default function Brothers() {
                     ))}
                 </div>
             </div>
-            <div className="w-full h-fit p-10">
-                <Title text="Alpha Avatar Class" />
-                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-10 pt-10">
+            <div className="w-full h-fit mt-12">
+                <Title as="h2" text="Alpha Avatar Class" />
+                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-8 pt-8">
                     {alphaClass.map((brother) => (
                         <BrotherCard
                             key={brother.getFullName()}
@@ -249,9 +262,9 @@ export default function Brothers() {
                     ))}
                 </div>
             </div>
-            <div className="w-full h-fit p-10">
-                <Title text="Beta Bankai Class" />
-                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-10 pt-10">
+            <div className="w-full h-fit mt-12">
+                <Title as="h2" text="Beta Bankai Class" />
+                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-8 pt-8">
                     {betaClass.map((brother) => (
                         <BrotherCard
                             key={brother.getFullName()}
@@ -264,9 +277,9 @@ export default function Brothers() {
                     ))}
                 </div>
             </div>
-            <div className="w-full h-fit p-10">
-                <Title text="Gamma Ga Kill Class" />
-                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-10 pt-10">
+            <div className="w-full h-fit mt-12">
+                <Title as="h2" text="Gamma Ga Kill Class" />
+                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-8 pt-8">
                     {gammaClass.map((brother) => (
                         <BrotherCard
                             key={brother.getFullName()}
@@ -279,9 +292,9 @@ export default function Brothers() {
                     ))}
                 </div>
             </div>
-            <div className="w-full h-fit p-10">
-                <Title text="Delta Doraemon Class" />
-                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-10 pt-10">
+            <div className="w-full h-fit mt-12">
+                <Title as="h2" text="Delta Doraemon Class" />
+                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-8 pt-8">
                     {deltaClass.map((brother) => (
                         <BrotherCard
                             key={brother.getFullName()}
@@ -294,9 +307,9 @@ export default function Brothers() {
                     ))}
                 </div>
             </div>
-            <div className="w-full h-fit p-10">
-                <Title text="Epsilon Evangelion Class" />
-                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-10 pt-10">
+            <div className="w-full h-fit mt-12">
+                <Title as="h2" text="Epsilon Evangelion Class" />
+                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-8 pt-8">
                     {epsilonClass.map((brother) => (
                         <BrotherCard
                             key={brother.getFullName()}
@@ -309,9 +322,9 @@ export default function Brothers() {
                     ))}
                 </div>
             </div>
-            <div className="w-full h-fit p-10">
-                <Title text="Zeta Z-Fighter Class" />
-                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-10 pt-10">
+            <div className="w-full h-fit mt-12">
+                <Title as="h2" text="Zeta Z-Fighter Class" />
+                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-8 pt-8">
                     {zetaClass.map((brother) => (
                         <BrotherCard
                             key={brother.getFullName()}
@@ -324,9 +337,9 @@ export default function Brothers() {
                     ))}
                 </div>
             </div>
-            <div className="w-full h-fit p-10">
-                <Title text="Eta Edgerunner Class" />
-                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-10 pt-10">
+            <div className="w-full h-fit mt-12">
+                <Title as="h2" text="Eta Edgerunner Class" />
+                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-8 pt-8">
                     {etaClass.map((brother) => (
                         <BrotherCard
                             key={brother.getFullName()}
@@ -339,9 +352,9 @@ export default function Brothers() {
                     ))}
                 </div>
             </div>
-            <div className="w-full h-fit p-10">
-                <Title text="Theta Titan Class" />
-                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-10 pt-10">
+            <div className="w-full h-fit mt-12">
+                <Title as="h2" text="Theta Titan Class" />
+                <div className="e-board w-full h-full flex flex-wrap justify-start items-center gap-8 pt-8">
                     {thetaClass.map((brother) => (
                         <BrotherCard
                             key={brother.getFullName()}
@@ -356,6 +369,6 @@ export default function Brothers() {
             </div>
 
 
-        </div>
+        </PageContainer>
     )
 }

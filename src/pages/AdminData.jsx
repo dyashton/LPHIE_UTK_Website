@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Title from "../components/Title";
 import Papa from "papaparse";
+import PageContainer from "../components/PageContainer";
 
 const DATASETS = [
   { key: "brothers", label: "Brothers (brotherdata.csv)" },
@@ -212,10 +213,18 @@ export default function AdminData() {
     return rows.filter((r) => columns.some((c) => String(r?.[c] ?? "").toLowerCase().includes(q)));
   }, [rows, columns, filter]);
 
+  const colWidth = useMemo(() => {
+    /** @type {Record<string, string>} */
+    const widths = {};
+    columns.forEach((c) => {
+      widths[c] = isLongTextColumn(c) ? "18rem" : "14rem";
+    });
+    return widths;
+  }, [columns]);
+
   return (
-    <div className="pt-40 px-6 md:px-12 w-full">
-      <div className="max-w-6xl mx-auto w-full">
-        <Title text="Admin Data" />
+    <PageContainer className="pb-16" maxWidthClassName="max-w-7xl">
+        <Title as="h1" text="Admin Data" />
 
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
@@ -332,17 +341,24 @@ export default function AdminData() {
               </div>
 
               <div className="w-full overflow-auto">
-                <table className="min-w-[900px] w-full border-collapse">
-                  <thead className="bg-secondary text-text-primary sticky top-0">
+                <table className="min-w-[900px] w-full border-collapse table-fixed">
+                  <colgroup>
+                    <col style={{ width: "4rem" }} />
+                    <col style={{ width: "7rem" }} />
+                    {columns.map((c) => (
+                      <col key={c} style={{ width: colWidth[c] ?? "14rem" }} />
+                    ))}
+                  </colgroup>
+                  <thead className="bg-secondary text-text-primary sticky top-0 z-10">
                     <tr>
-                      <th className="text-left p-3 border-b border-tertiary/40 w-16 sticky left-0 bg-secondary">
+                      <th className="text-left p-3 border-b border-tertiary/40 w-16 bg-secondary">
                         #
                       </th>
-                      <th className="text-left p-3 border-b border-tertiary/40 w-28 sticky left-16 bg-secondary">
+                      <th className="text-left p-3 border-b border-tertiary/40 w-28 bg-secondary">
                         Actions
                       </th>
                       {columns.map((c) => (
-                        <th key={c} className="text-left p-3 border-b border-tertiary/40">
+                        <th key={c} className="text-left p-3 border-b border-tertiary/40 whitespace-nowrap">
                           {c}
                         </th>
                       ))}
@@ -351,10 +367,10 @@ export default function AdminData() {
                   <tbody className="bg-primary text-text-primary">
                     {filteredRows.map((row, rowIdx) => (
                       <tr key={rowIdx} className="border-b border-tertiary/40 hover:bg-secondary/20">
-                        <td className="p-2 align-top sticky left-0 bg-primary">
+                        <td className="p-2 align-top bg-primary w-16">
                           {rowIdx + 1}
                         </td>
-                        <td className="p-2 align-top sticky left-16 bg-primary">
+                        <td className="p-2 align-top bg-primary w-28">
                           <button
                             type="button"
                             disabled={busy}
@@ -372,14 +388,14 @@ export default function AdminData() {
                                 disabled={busy}
                                 rows={3}
                                 onChange={(e) => updateCell(rowIdx, c, e.target.value)}
-                                className="w-full min-w-[260px] rounded-none border border-tertiary/40 bg-secondary text-text-primary p-2 resize-y"
+                                className="w-full rounded-none border border-tertiary/40 bg-secondary text-text-primary p-2 resize-y"
                               />
                             ) : (
                               <input
                                 value={row?.[c] ?? ""}
                                 disabled={busy}
                                 onChange={(e) => updateCell(rowIdx, c, e.target.value)}
-                                className="w-full min-w-[220px] rounded-none border border-tertiary/40 bg-secondary text-text-primary p-2"
+                                className="w-full rounded-none border border-tertiary/40 bg-secondary text-text-primary p-2"
                               />
                             )}
                           </td>
@@ -399,8 +415,7 @@ export default function AdminData() {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+    </PageContainer>
   );
 }
 

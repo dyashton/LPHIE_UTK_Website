@@ -18,7 +18,6 @@ export default function BrothersProvider({ children }) {
         const csvText = payload.csvText;
 
         const results = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-        console.log("CSV Data:", results.data);
         const brothersFromCsv = results.data.map(brother => {
             return new Brother(
                 brother.firstName,
@@ -102,28 +101,17 @@ export default function BrothersProvider({ children }) {
     }, []);
 
     useEffect(() => {
-        console.log("Brothers data loaded:", brothers);
-        console.log("Images loaded:", images);
-        console.log("Home Images loaded:", homeImages);
-        console.log("Rush Images loaded:", rushImages);
-    }, [brothers, images, homeImages, rushImages]);
+        // Lightweight preload: just the first hero image(s) to avoid a flash on initial render.
+        const heroCandidates = [
+            homeImages?.[0],
+            rushImages?.[0],
+        ].filter(Boolean);
 
-    useEffect(() => {
-        Object.values(images).forEach(url => {
-            const img = new Image();
-            img.src = url; // forces the browser to load the image immediately
-        });
-
-        homeImages.forEach(url => {
+        heroCandidates.forEach((url) => {
             const img = new Image();
             img.src = url;
         });
-
-        rushImages.forEach(url => {
-            const img = new Image();
-            img.src = url;
-        });
-    }, [images, homeImages, rushImages]);
+    }, [homeImages, rushImages]);
 
     return (
         <BrothersContext.Provider value={{ brothers, setBrothers, images, setImages, homeImages, setHomeImages, rushImages, setRushImages }}>

@@ -1,5 +1,5 @@
 import Navbar from "./Navbar"
-import LPHIELogo from "../assets/logo.png"
+import LPHIELogo from "../assets/logo.svg"
 
 export default function Layout({ children }) {
     return (
@@ -11,7 +11,7 @@ export default function Layout({ children }) {
                     backgroundRepeat: 'no-repeat',
                     backgroundPosition: 'center',
                     backgroundSize: 'clamp(220px, 55vw, 520px)',
-                    opacity: 0.8
+                    opacity: 0.12
                 }}
             />
 

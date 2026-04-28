@@ -4,6 +4,7 @@ import FamilyTreeCanvas from "../components/FamilyTreeCanvas";
 import { useState, useEffect, useContext, useMemo } from "react";
 import { BrothersContext } from "../providers/BrothersContext";
 import Papa from "papaparse";
+import PageContainer from "../components/PageContainer";
 
 
 /**
@@ -16,7 +17,6 @@ function buildTree(rows) {
 
     // Create node for each brother
     rows.forEach((row) => {
-        console.log("Processing row: ", row);
         const id = row.brother;
 
         nodes[id] = {
@@ -28,7 +28,6 @@ function buildTree(rows) {
             label: row.label,
             children: [],
         };
-        console.log("Created node: ", nodes[id]);
     });
 
     // Link parents → children
@@ -43,7 +42,6 @@ function buildTree(rows) {
             roots.push(nodes[childId]);
         }
     });
-    console.log("Roots: ", roots)
     return roots;
 }
 
@@ -64,7 +62,6 @@ export default function FamilyTree() {
             const payload = await res.json();
             const results = Papa.parse(payload.csvText, { header: true, skipEmptyLines: true });
 
-            console.log("Family Tree CSV Data:", results.data);
             const rows = [];
             results.data.forEach((item) => {
                 rows.push({
@@ -75,7 +72,6 @@ export default function FamilyTree() {
                     label: item.label,
                 });
             });
-            console.log("Parsed Rows:", rows);
             if (!cancelled) setRawRows(rows);
         }
 
@@ -89,89 +85,76 @@ export default function FamilyTree() {
             family === "All Families"
                 ? rawRows
                 : rawRows.filter((row) => row.family === family);
-        console.log("Filtered Rows for Family", family, ":", filtered);
         return buildTree(filtered);
     }, [rawRows, family]);
 
     return (
-        <div className="relative pt-40 pl-15 h-full w-full flex flex-col items-start">
-            <Title text="Family Tree" />
-            <div className="color-legend absolute top-50 right-30 mb-5 flex flex-col gap-4 z-10">
-                <div className="flex items-center gap-2 cursor-pointer" onMouseEnter={() => setHoverUni("UTK")} onMouseLeave={() => setHoverUni("")}>
-                    <div className="w-5 h-5 border-ut-orange bg-ut-orange"></div>
-                    <div className="text-3xl text-text-primary">UTK</div>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer" onMouseEnter={() => setHoverUni("NCSU")} onMouseLeave={() => setHoverUni("")}>
-                    <div className="w-5 h-5 border-ncsu-red bg-ncsu-red"></div>
-                    <div className="text-3xl text-text-primary">NCSU</div>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer" onMouseEnter={() => setHoverUni("UNC Charlotte")} onMouseLeave={() => setHoverUni("")}>
-                    <div className="w-5 h-5 border-unc-charlotte-green bg-unc-charlotte-green"></div>
-                    <div className="text-3xl text-text-primary">UNC Charlotte</div>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer" onMouseEnter={() => setHoverUni("UNC Chapel Hill")} onMouseLeave={() => setHoverUni("")}>
-                    <div className="w-5 h-5 border-unc-blue bg-unc-blue"></div>
-                    <div className="text-3xl text-text-primary">UNC Chapel Hill</div>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer" onMouseEnter={() => setHoverUni("UGA")} onMouseLeave={() => setHoverUni("")}>
-                    <div className="w-5 h-5 border-uga-red bg-uga-red"></div>
-                    <div className="text-3xl text-text-primary">UGA</div>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer" onMouseEnter={() => setHoverUni("Vanderbilt")} onMouseLeave={() => setHoverUni("")}>
-                    <div className="w-5 h-5 border-vandy-gold bg-vandy-gold"></div>
-                    <div className="text-3xl text-text-primary">Vanderbilt</div>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer" onMouseEnter={() => setHoverUni("Duke")} onMouseLeave={() => setHoverUni("")}>
-                    <div className="w-5 h-5 border-duke-blue bg-duke-blue"></div>
-                    <div className="text-3xl text-text-primary">Duke</div>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer" onMouseEnter={() => setHoverUni("UCF")} onMouseLeave={() => setHoverUni("")}>
-                    <div className="w-5 h-5 border-ucf-gold bg-ucf-gold"></div>
-                    <div className="text-3xl text-text-primary">UCF</div>
-                </div>
-            </div>
-            <div className="absolute top-50 right-120 mb-5 flex flex-col gap-4 z-10">
-                <div className="flex items-center gap-2 cursor-pointer" onMouseEnter={() => setHoverFamily("Bounce Back")} onMouseLeave={() => setHoverFamily("")}>
-                    <div className="w-5 h-5 border-border-primary bg-border-primary"></div>
-                    <div className="text-3xl text-text-primary">Bounce Back</div>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer" onMouseEnter={() => setHoverFamily("Olympus")} onMouseLeave={() => setHoverFamily("")}>
-                    <div className="w-5 h-5 border-border-primary bg-border-primary"></div>
-                    <div className="text-3xl text-text-primary">Olympus</div>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer" onMouseEnter={() => setHoverFamily("Uji")} onMouseLeave={() => setHoverFamily("")}>
-                    <div className="w-5 h-5 border-border-primary bg-border-primary"></div>
-                    <div className="text-3xl text-text-primary">Uji</div>
-                </div>
-                <div className="flex items-center gap-2 cursor-pointer" onMouseEnter={() => setHoverFamily("Flight Club")} onMouseLeave={() => setHoverFamily("")}>
-                    <div className="w-5 h-5 border-border-primary bg-border-primary"></div>
-                    <div className="text-3xl text-text-primary">Flight Club</div>
+        <PageContainer className="pb-10" maxWidthClassName="max-w-7xl">
+            <Title as="h1" text="Family Tree" />
+
+            <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div className="w-full lg:w-auto">
+                    <CustomSelect
+                        value={family}
+                        onChange={(val) => setFamily(val)}
+                        options={[
+                            { value: "All Families", label: "All Families" },
+                            { value: "Bounce Back", label: "Bounce Back" },
+                            { value: "Uji", label: "Uji" },
+                            { value: "Flight Club", label: "Flight Club" },
+                            { value: "Olympus", label: "Olympus" },
+                        ]}
+                    />
                 </div>
 
-            </div>
-            <div className="w-full h-fit p-5">
-                <CustomSelect
-                    value={family}
-                    onChange={(val) => setFamily(val)}
-                    options={[
-                        { value: "All Families", label: "All Families" },
-                        { value: "Bounce Back", label: "Bounce Back" },
-                        { value: "Uji", label: "Uji" },
-                        { value: "Flight Club", label: "Flight Club" },
-                        { value: "Olympus", label: "Olympus" },
-                    ]}
-                />
+                <div className="flex flex-col sm:flex-row gap-6 text-sm sm:text-base text-text-primary">
+                    <div className="flex flex-col gap-2">
+                        {["UTK", "NCSU", "UNC Charlotte", "UNC Chapel Hill", "UGA", "Vanderbilt", "Duke", "UCF"].map((uni) => (
+                            <button
+                                key={uni}
+                                type="button"
+                                className="flex items-center gap-2 text-left hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                                onMouseEnter={() => setHoverUni(uni)}
+                                onMouseLeave={() => setHoverUni("")}
+                                onFocus={() => setHoverUni(uni)}
+                                onBlur={() => setHoverUni("")}
+                            >
+                                <div className={`w-3.5 h-3.5 ${uni === "UTK" ? "bg-ut-orange" :
+                                    uni === "NCSU" ? "bg-ncsu-red" :
+                                        uni === "UNC Charlotte" ? "bg-unc-charlotte-green" :
+                                            uni === "UNC Chapel Hill" ? "bg-unc-blue" :
+                                                uni === "UGA" ? "bg-uga-red" :
+                                                    uni === "Vanderbilt" ? "bg-vandy-gold" :
+                                                        uni === "Duke" ? "bg-duke-blue" :
+                                                            "bg-ucf-gold"
+                                    }`}
+                                />
+                                <span>{uni}</span>
+                            </button>
+                        ))}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        {["Bounce Back", "Olympus", "Uji", "Flight Club"].map((fam) => (
+                            <button
+                                key={fam}
+                                type="button"
+                                className="flex items-center gap-2 text-left hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                                onMouseEnter={() => setHoverFamily(fam)}
+                                onMouseLeave={() => setHoverFamily("")}
+                                onFocus={() => setHoverFamily(fam)}
+                                onBlur={() => setHoverFamily("")}
+                            >
+                                <div className="w-3.5 h-3.5 bg-text-primary/30" />
+                                <span>{fam}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
             </div>
 
-            <div className="h-full w-full mb-10">
-                {/* Pass real tree structure */}
-                <FamilyTreeCanvas
-                    treeData={treeData}
-                    hoverUni={hoverUni}
-                    hoverFamily={hoverFamily}
-
-                />
+            <div className="h-[70vh] sm:h-[75vh] lg:h-[78vh] w-full mt-6 border border-tertiary/30 bg-primary/40">
+                <FamilyTreeCanvas treeData={treeData} hoverUni={hoverUni} hoverFamily={hoverFamily} />
             </div>
-        </div>
+        </PageContainer>
     );
 }
