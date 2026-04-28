@@ -56,41 +56,47 @@ export default function Rush() {
 
     const heroImageUrl = Array.isArray(rushImages) && rushImages.length ? rushImages[imgIndex % rushImages.length] : null;
     return (
-        <div className="w-full min-h-dvh relative">
-            <div className="relative w-full h-[42vh] sm:h-[52vh] lg:h-[58vh]">
-                <PageContainer paddedTop={false} className="absolute inset-x-0 top-24 sm:top-32 z-20">
-                    <Title as="h1" text="Rush" />
-                </PageContainer>
-                <div className="absolute inset-0 bg-linear-to-b from-primary via-background to-background fade-image" />
+        <div className="w-full min-h-dvh relative bg-background">
+            {/* Hero: tall enough for imagery; bottom scrim blends into overlapping panel */}
+            <div className="relative w-full h-[min(72vh,820px)] sm:h-[min(78vh,900px)] min-h-[22rem] overflow-hidden">
+                {/* Base wash when no photo or under photo */}
+                <div className="absolute inset-0 bg-linear-to-b from-primary via-background to-background" />
                 {heroImageUrl && !reducedMotion ? (
-                    <AnimatePresence className="relative w-full h-full">
+                    <AnimatePresence mode="wait">
                         <MotionDiv
-                            className="absolute top-0 w-full h-full fade-image"
-                            style={{ backgroundImage: `url(${heroImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.75 }}
+                            className="absolute inset-0 fade-image"
+                            style={{ backgroundImage: `url(${heroImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center top' }}
                             key={imgIndex}
                             initial={{ opacity: 0 }}
-                            animate={{ opacity: 0.75 }}
+                            animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 1 }}
                         />
                     </AnimatePresence>
                 ) : heroImageUrl ? (
                     <div
-                        className="absolute top-0 w-full h-full fade-image opacity-75"
-                        style={{ backgroundImage: `url(${heroImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                        className="absolute inset-0 fade-image"
+                        style={{ backgroundImage: `url(${heroImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center top' }}
                     />
                 ) : null}
-            </div>
-            <div className="main-content relative -mt-10 sm:-mt-14 z-10">
-                <PageContainer className="pb-16">
-                    <div className="pt-2 sm:pt-4">
-                        <Title as="h2" text="Upcoming Rush Events" />
-                    </div>
-                    <div className="rush-events mt-4 sm:mt-6">
-                        {displayRushEvents(upcomingRushEvents)}
-                    </div>
+                {/* Readability + blend into page */}
+                <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-primary/40 via-transparent to-background" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-48 bg-linear-to-t from-background via-background/80 to-transparent" />
+
+                <PageContainer paddedTop={false} className="relative z-20 pt-24 sm:pt-32">
+                    <Title as="h1" text="Rush" />
                 </PageContainer>
             </div>
+
+            {/* Overlaps hero: card sits on top of the background */}
+            <PageContainer className="relative z-30 -mt-14 sm:-mt-20 md:-mt-24 pb-16">
+                <div className="rounded-2xl border-2 border-accent/50 bg-primary/90 backdrop-blur-md shadow-[0_-8px_40px_rgba(0,0,0,0.35)] px-5 py-6 sm:px-8 sm:py-8">
+                    <Title as="h2" className="!text-2xl sm:!text-4xl lg:!text-5xl" text="Upcoming Rush Events" />
+                    <div className="rush-events mt-5 sm:mt-7">
+                        {displayRushEvents(upcomingRushEvents)}
+                    </div>
+                </div>
+            </PageContainer>
         </div>
     )
 }
