@@ -2,7 +2,10 @@
 // import bgimg2 from "../assets/bgimg2.jpeg"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useEffect, useContext } from "react"
-import { BrothersContext } from "../providers/BrothersProvider"
+import { BrothersContext } from "../providers/BrothersContext"
+
+const MotionDiv = motion.div;
+const MotionH1 = motion.h1;
 
 // const images = [bgimg, bgimg2];
 
@@ -49,7 +52,7 @@ export default function Home() {
             </div>
             <AnimatePresence>
 
-                <motion.div
+                <MotionDiv
                     key={imgIndex}
                     className="absolute w-full h-full "
                     style={{ backgroundImage: `url(${homeImages[imgIndex]})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.5 }}
@@ -60,13 +63,13 @@ export default function Home() {
                 />
             </AnimatePresence>
             <div className="relative pt-40 pl-15 z-1 flex flex-col gap-2">
-                <motion.h1
+                <MotionH1
                     className="text-text-primary text-8xl font-cinzel"
                     animate={{
                         color: ["#4169E1", "#F2F3F4", "#4169E1"]
                     }}
                     transition={{ duration: 10, ease: "easeInOut", repeat: Infinity }}
-                >Lambda Phi Epsilon</motion.h1>
+                >Lambda Phi Epsilon</MotionH1>
                 <h1 className="text-text-secondary text-4xl">University of Tennessee, Knoxville</h1>
             </div>
         </div>

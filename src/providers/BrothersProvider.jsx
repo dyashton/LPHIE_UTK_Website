@@ -1,11 +1,10 @@
-import { useState, useEffect, createContext, use } from "react";
+import { useState, useEffect } from "react";
 import Papa from "papaparse";
 import Brother from "../model/Brother";
 import { decodeURIEncodedString } from "../utils/utils";
+import { BrothersContext } from "./BrothersContext";
 
 
-
-export const BrothersContext = createContext(null);
 
 export default function BrothersProvider({ children }) {
     const [brothers, setBrothers] = useState([]);
@@ -13,46 +12,45 @@ export default function BrothersProvider({ children }) {
     const [homeImages, setHomeImages] = useState([]);
     const [rushImages, setRushImages] = useState([]);
 
-    function loadBrothersDataCsv() {
-        Papa.parse("data/brotherdata.csv", {
-            download: true,
-            header: true,
-            complete: (results) => {
-                console.log("CSV Data:", results.data);
-                const brothersFromCsv = results.data.map(brother => {
-                    return new Brother(
-                        brother.firstName,
-                        brother.lineName,
-                        brother.lastName,
-                        brother.position,
-                        brother.classYear,
-                        brother.graduationYear,
-                        brother.major,
-                        brother.hometown,
-                        brother.imageUrl,
-                        brother.hobbies?.split(",") ?? [],
-                        brother.bigsNames?.split(",") ?? [],
-                        brother.littlesNames?.split(",") ?? [],
-                        brother.crossingClass,
-                        brother.minor,
-                        brother.family,
-                        brother.PM,
-                        brother.PD,
-                        brother.lineNumber
-                    );
-                });
+    async function loadBrothersDataCsv() {
+        const res = await fetch("/api/datasets/brothers");
+        const payload = await res.json();
+        const csvText = payload.csvText;
 
-                brothersFromCsv.forEach(brother => {
-                    const bigBrothers = brother.bigsNames.map(name => brothersFromCsv.find(b => b.lineName === name)).filter(b => b);
-                    const littleBrothers = brother.littlesNames.map(name => brothersFromCsv.find(b => b.lineName === name)).filter(b => b);
-                    brother.setBig(bigBrothers);
-                    brother.setLittle(littleBrothers);
-                });
-
-                // single state update (important for performance)
-                setBrothers(brothersFromCsv);
-            },
+        const results = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+        console.log("CSV Data:", results.data);
+        const brothersFromCsv = results.data.map(brother => {
+            return new Brother(
+                brother.firstName,
+                brother.lineName,
+                brother.lastName,
+                brother.position,
+                brother.classYear,
+                brother.graduationYear,
+                brother.major,
+                brother.hometown,
+                brother.imageUrl,
+                brother.hobbies?.split(",") ?? [],
+                brother.bigsNames?.split(",") ?? [],
+                brother.littlesNames?.split(",") ?? [],
+                brother.crossingClass,
+                brother.minor,
+                brother.family,
+                brother.PM,
+                brother.PD,
+                brother.lineNumber
+            );
         });
+
+        brothersFromCsv.forEach(brother => {
+            const bigBrothers = brother.bigsNames.map(name => brothersFromCsv.find(b => b.lineName === name)).filter(b => b);
+            const littleBrothers = brother.littlesNames.map(name => brothersFromCsv.find(b => b.lineName === name)).filter(b => b);
+            brother.setBig(bigBrothers);
+            brother.setLittle(littleBrothers);
+        });
+
+        // single state update (important for performance)
+        setBrothers(brothersFromCsv);
     }
 
     function loadBrothersImages() {
@@ -96,6 +94,7 @@ export default function BrothersProvider({ children }) {
 
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         loadBrothersDataCsv();
         loadBrothersImages();
         loadHomeImages();
@@ -107,7 +106,7 @@ export default function BrothersProvider({ children }) {
         console.log("Images loaded:", images);
         console.log("Home Images loaded:", homeImages);
         console.log("Rush Images loaded:", rushImages);
-    }, [brothers, images]);
+    }, [brothers, images, homeImages, rushImages]);
 
     useEffect(() => {
         Object.values(images).forEach(url => {

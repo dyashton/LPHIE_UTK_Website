@@ -1,9 +1,6 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import Layout from './components/Layout'
-import { HashRouter, Routes, Route } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import About from './pages/About.jsx'
 import Contact from './pages/Contact.jsx'
@@ -12,6 +9,7 @@ import FamilyTree from './pages/FamilyTree.jsx'
 import Rush from './pages/Rush.jsx'
 import Merch from './pages/Merch.jsx'
 import Brothers from './pages/Brothers.jsx'
+import AdminData from './pages/AdminData.jsx'
 
 function App() {
 
@@ -26,6 +24,7 @@ function App() {
         <Route path="rush" element={<Rush />} />
         <Route path="merch" element={<Merch />} />
         <Route path="brothers" element={<Brothers />} />
+        <Route path="admin/data" element={<AdminData />} />
       </Routes>
     </Layout>
   )

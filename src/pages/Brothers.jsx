@@ -1,8 +1,11 @@
 import Title from "../components/Title"
 import JavonImg from "../assets/portraits/Endless.png"
 import { motion, AnimatePresence } from "framer-motion"
-import { useState, useContext, useRef, forwardRef, useImperativeHandle, useEffect } from "react"
-import { BrothersContext } from "../providers/BrothersProvider"
+import { useState, useContext } from "react"
+import { BrothersContext } from "../providers/BrothersContext"
+
+const MotionDiv = motion.div;
+const MotionImg = motion.img;
 
 
 
@@ -58,7 +61,7 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
 
 
     return (
-        <motion.div
+        <MotionDiv
             className={`brother-card w-[18rem] h-108 bg-primary border-accent border-2 rounded-md relative overflow-hidden cursor-pointer`}
             animate={{
                 width: extendedBrother === brother.lineName ? "48rem" : "18rem", // Tailwind w-96 = 24rem, w-16 = 4rem
@@ -68,7 +71,7 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
             whileHover={{ borderColor: "#F2F3F4" }}
             id={brother.lineName}
         >
-            <motion.div
+            <MotionDiv
                 key="front"
                 className="rounded-xl w-[18rem] h-full absolute top-0 right-0"
                 initial={{ opacity: 0 }}
@@ -86,7 +89,7 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
 
                     </div>
                 </div>
-                <motion.img src={images[brother.lineName]} alt={brother.getFullName()} className="brother-image absolute top-0 right-0 w-[18rem] h-full object-cover"
+                <MotionImg src={images[brother.lineName]} alt={brother.getFullName()} className="brother-image absolute top-0 right-0 w-[18rem] h-full object-cover"
                     variants={fadeMask}
                     initial="hidden"
                     animate={extendedBrother === brother.lineName ? "visible" : "hidden"}
@@ -102,11 +105,11 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                     </h2>
                     <p className="brother-details w-full">{brother.classYear}</p>
                 </div>
-            </motion.div>
+            </MotionDiv>
 
             <AnimatePresence initial={false}>
                 {extendedBrother === brother.lineName && (
-                    <motion.div
+                    <MotionDiv
                         key="back"
                         className="absolute rounded-xl text-lg font-medium flex flex-col items-center justify-start w-[30rem] h-full p-5 gap-5"
                         initial={{ opacity: 0 }}
@@ -132,16 +135,16 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                             </div>
                         </div>
                         <div className="brother-hobbies w-full"><p>Hobbies:</p>{renderHobbies(brother.hobbies)}</div>
-                    </motion.div>
+                    </MotionDiv>
                 )}
             </AnimatePresence>
-        </motion.div>
+        </MotionDiv>
     )
 }
 
 export default function Brothers() {
-    const { brothers, setBrothers } = useContext(BrothersContext);
-    const { images, setImages } = useContext(BrothersContext);
+    const { brothers } = useContext(BrothersContext);
+    const { images } = useContext(BrothersContext);
     const [extendedBrother, setExtendedBrother] = useState(null);
 
     const executiveBoard = brothers.filter(brother => (brother.position !== "Alumni" && brother.position !== "Active"));

@@ -1,8 +1,8 @@
 import Title from "../components/Title";
 import CustomSelect from "../components/Select";
 import FamilyTreeCanvas from "../components/FamilyTreeCanvas";
-import { useState, useEffect, useContext } from "react";
-import { BrothersContext } from "../providers/BrothersProvider";
+import { useState, useEffect, useContext, useMemo } from "react";
+import { BrothersContext } from "../providers/BrothersContext";
 import Papa from "papaparse";
 
 
@@ -50,46 +50,47 @@ function buildTree(rows) {
 export default function FamilyTree() {
     const [family, setFamily] = useState("All Families");
     const [rawRows, setRawRows] = useState([]);
-    const [treeData, setTreeData] = useState([]);
     const [hoverUni, setHoverUni] = useState("");
     const [hoverFamily, setHoverFamily] = useState("");
 
-    const { brothers } = useContext(BrothersContext);
+    useContext(BrothersContext);
 
     // Load CSV inside React
     useEffect(() => {
-        Papa.parse("data/FamilyTreeData.csv", {
-            download: true,
-            header: true,
-            complete: (results) => {
-                console.log("Family Tree CSV Data:", results.data);
-                const rows = []
-                results.data.forEach((item) => {
-                    rows.push({
-                        family: item.family,
-                        brother: item.brother,
-                        parent: item.parent,
-                        school: item.school,
-                        label: item.label,
-                    });
+        let cancelled = false;
+
+        async function load() {
+            const res = await fetch("/api/datasets/familyTree");
+            const payload = await res.json();
+            const results = Papa.parse(payload.csvText, { header: true, skipEmptyLines: true });
+
+            console.log("Family Tree CSV Data:", results.data);
+            const rows = [];
+            results.data.forEach((item) => {
+                rows.push({
+                    family: item.family,
+                    brother: item.brother,
+                    parent: item.parent,
+                    school: item.school,
+                    label: item.label,
                 });
-                console.log("Parsed Rows:", rows);
-                setRawRows(rows);
-            },
-        });
+            });
+            console.log("Parsed Rows:", rows);
+            if (!cancelled) setRawRows(rows);
+        }
+
+        load().catch((err) => console.error(err));
+        return () => { cancelled = true; };
     }, []);
 
-    // Rebuild tree when CSV or family changes
-    useEffect(() => {
-        if (!rawRows.length) return;
-
+    const treeData = useMemo(() => {
+        if (!rawRows.length) return [];
         const filtered =
             family === "All Families"
                 ? rawRows
                 : rawRows.filter((row) => row.family === family);
         console.log("Filtered Rows for Family", family, ":", filtered);
-        const tree = buildTree(filtered);
-        setTreeData(tree);
+        return buildTree(filtered);
     }, [rawRows, family]);
 
     return (
