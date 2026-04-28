@@ -15,10 +15,10 @@ export default function Layout({ children }) {
                 }}
             />
 
-            <header className="sticky top-0 z-50 w-full shrink-0">
+            <header className="fixed top-0 left-0 right-0 z-50 w-full">
                 <Navbar />
             </header>
-            <div className="relative z-10 flex-1 min-w-0 overflow-x-hidden">
+            <div className="relative z-10 flex-1 min-w-0 overflow-x-hidden pt-20 sm:pt-24">
                 {children}
             </div>
         </div>
