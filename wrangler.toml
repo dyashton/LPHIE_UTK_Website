@@ -1,0 +1,11 @@
+name = "lphie-utk-website"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "./dist"
+
+# Create the database, then replace database_id:
+#   npx wrangler d1 create lphie-data
+[[d1_databases]]
+binding = "DB"
+database_name = "lphie-data"
+database_id = "7a6b0ec2-8f87-40c6-b830-8b18d36f1271"
+preview_database_id = "local-lphie-data"

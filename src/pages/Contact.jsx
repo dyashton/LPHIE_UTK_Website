@@ -3,7 +3,7 @@ import PageContainer from "../components/PageContainer"
 
 export default function Contact() {
     return (
-        <PageContainer className="pb-20">
+        <PageContainer className="pb-20 pt-20">
             <Title as="h1" text="Contact" />
             <div className="main-content mt-8 grid grid-cols-1 lg:grid-cols-3 gap-10 w-full">
                 <div className="left-content lg:col-span-2 flex flex-col items-start">

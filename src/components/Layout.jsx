@@ -5,7 +5,7 @@ export default function Layout({ children }) {
     return (
         <div className="w-full min-h-dvh flex flex-col relative bg-background">
             <div
-                className="fixed inset-0 w-full h-full pointer-events-none"
+                className="absolute top-0 left-0 right-0 inset-0 w-full h-full pointer-events-none"
                 style={{
                     backgroundImage: `url(${LPHIELogo})`,
                     backgroundRepeat: 'no-repeat',
@@ -15,10 +15,10 @@ export default function Layout({ children }) {
                 }}
             />
 
-            <header className="fixed top-0 left-0 right-0 z-50 w-full">
+            <header className="absolute top-0 left-0 right-0 z-50 w-full">
                 <Navbar />
             </header>
-            <div className="relative z-10 flex-1 min-w-0 overflow-x-hidden pt-20 sm:pt-24">
+            <div className="relative z-10 flex-1 min-w-0 overflow-x-hidden">
                 {children}
             </div>
         </div>

@@ -17,7 +17,7 @@ function renderBigOrLittle(brothers, jumpToBrother) {
             return <li key={brother.getFullName()} onClick={(e) => {
                 e.stopPropagation();
                 jumpToBrother(brother)
-            }}
+            }}  
                 className="flex flex-row gap-[1ch] font-normal">
                 <p>{brother.firstName}</p>
                 <p className="text-accent text-nowrap font-cinzel">"{brother.lineName}"</p>
@@ -63,7 +63,7 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
 
     return (
         <MotionDiv
-            className={`brother-card w-[18rem] h-108 bg-primary border-accent border-2 rounded-md relative overflow-hidden cursor-pointer`}
+            className={`brother-card w-[18rem] h-108 bg-primary border-accent border-2 rounded-md relative overflow-hidden cursor-pointer pt-20`}
             animate={{
                 width: extendedBrother === brother.lineName ? "48rem" : "18rem", // Tailwind w-96 = 24rem, w-16 = 4rem
             }}

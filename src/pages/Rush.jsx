@@ -56,7 +56,7 @@ export default function Rush() {
 
     const heroImageUrl = Array.isArray(rushImages) && rushImages.length ? rushImages[imgIndex % rushImages.length] : null;
     return (
-        <div className="w-full min-h-dvh relative bg-background">
+        <div className="w-full min-h-dvh relative bg-background pt-20">
             {/* Hero: tall enough for imagery; bottom scrim blends into overlapping panel */}
             <div className="relative w-full h-[min(72vh,820px)] sm:h-[min(78vh,900px)] min-h-[22rem] overflow-hidden">
                 {/* Base wash when no photo or under photo */}
