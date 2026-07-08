@@ -38,16 +38,44 @@ async function ensureDb() {
   `);
 }
 
+function getAdminToken() {
+  return String(process.env.ADMIN_TOKEN ?? '').trim();
+}
+
 function requireAdminToken(req, res, next) {
-  const token = process.env.ADMIN_TOKEN;
-  if (!token) return res.status(500).json({ error: 'ADMIN_TOKEN not configured' });
+  const expected = getAdminToken();
+  if (!expected) return res.status(500).json({ error: 'ADMIN_TOKEN not configured' });
 
   const header = req.get('authorization') || '';
   const match = header.match(/^Bearer\s+(.+)$/i);
   if (!match) return res.status(401).json({ error: 'Missing Authorization: Bearer token' });
-  if (match[1] !== token) return res.status(403).json({ error: 'Invalid token' });
+
+  const received = match[1].trim();
+  if (received !== expected) {
+    const debug = {
+      receivedLength: received.length,
+      expectedLength: expected.length,
+      receivedHadWhitespace: received !== match[1],
+    };
+    console.error('[auth] token mismatch', debug);
+    return res.status(403).json({ error: 'Invalid token', debug });
+  }
+
   return next();
 }
+
+app.get('/api/debug/admin-token', (req, res) => {
+  const token = getAdminToken();
+  const hostname = req.hostname;
+  const isLocal = hostname === 'localhost' || hostname === '127.0.0.1';
+
+  return res.json({
+    configured: !!token,
+    length: token.length,
+    hostname,
+    value: isLocal ? token : undefined,
+  });
+});
 
 async function readFallbackCsv(key) {
   const filename = DATASET_KEYS[key];
@@ -133,7 +161,16 @@ app.get('*', (req, res) => {
 ensureDb()
   .then(() => {
     app.listen(PORT, () => {
+      const adminToken = getAdminToken();
       console.log(`Server running on port ${PORT}`);
+      if (adminToken) {
+        console.log(`[debug] ADMIN_TOKEN configured (length ${adminToken.length})`);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`[debug] ADMIN_TOKEN value: ${adminToken}`);
+        }
+      } else {
+        console.log('[debug] ADMIN_TOKEN not configured');
+      }
     });
   })
   .catch((err) => {

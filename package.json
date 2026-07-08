@@ -23,6 +23,7 @@
     "@radix-ui/react-select": "^2.2.6",
     "@tailwindcss/vite": "^4.1.18",
     "@vitejs/plugin-react": "^5.1.4",
+    "browser-image-compression": "^2.0.2",
     "dagre": "^0.8.5",
     "express": "^4.22.1",
     "framer-motion": "^12.23.26",

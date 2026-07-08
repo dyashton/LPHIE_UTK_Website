@@ -43,6 +43,17 @@ function buildBlankRow(columns) {
   return row;
 }
 
+function formatAuthError(prefix, payload, res) {
+  let msg = payload?.error ? `${prefix}: ${payload.error}` : `${prefix}: ${res.status}`;
+  if (payload?.debug) {
+    const { receivedLength, expectedLength, receivedHadWhitespace } = payload.debug;
+    msg += ` (you sent ${receivedLength} chars, server expects ${expectedLength}`;
+    if (receivedHadWhitespace) msg += ', whitespace detected';
+    msg += ')';
+  }
+  return msg;
+}
+
 export default function AdminData() {
   const [token, setToken] = useState(() => sessionStorage.getItem("adminToken") || "");
   const [datasetKey, setDatasetKey] = useState("brothers");
@@ -50,6 +61,7 @@ export default function AdminData() {
   const [status, setStatus] = useState("");
   const [busy, setBusy] = useState(false);
   const [filter, setFilter] = useState("");
+  const [serverTokenDebug, setServerTokenDebug] = useState(null);
 
   const [columns, setColumns] = useState(/** @type {string[]} */ ([]));
   const [rows, setRows] = useState(/** @type {Array<Record<string, string>>} */ ([]));
@@ -58,6 +70,13 @@ export default function AdminData() {
   const datasetLabel = useMemo(() => DATASETS.find((d) => d.key === datasetKey)?.label ?? datasetKey, [datasetKey]);
 
   const hasEditor = true;
+
+  useEffect(() => {
+    fetch('/api/debug/admin-token')
+      .then((res) => res.json())
+      .then((data) => setServerTokenDebug(data))
+      .catch(() => setServerTokenDebug(null));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -125,7 +144,8 @@ export default function AdminData() {
     setBusy(true);
     setStatus("Reading file…");
     try {
-      sessionStorage.setItem("adminToken", token);
+      const authToken = token.trim();
+      sessionStorage.setItem("adminToken", authToken);
       const csvText = await file.text();
 
       setStatus("Uploading…");
@@ -133,14 +153,14 @@ export default function AdminData() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({ csvText }),
       });
 
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setStatus(payload?.error ? `Upload failed: ${payload.error}` : `Upload failed: ${res.status}`);
+        setStatus(formatAuthError("Upload failed", payload, res));
         return;
       }
       setStatus(`Uploaded ${datasetLabel}. Updated at: ${payload.updatedAt ?? "now"}`);
@@ -164,20 +184,21 @@ export default function AdminData() {
     setBusy(true);
     setStatus("Saving…");
     try {
-      sessionStorage.setItem("adminToken", token);
+      const authToken = token.trim();
+      sessionStorage.setItem("adminToken", authToken);
 
       const csvText = Papa.unparse(rows, { columns, skipEmptyLines: true });
       const res = await fetch(`/api/datasets/${encodeURIComponent(datasetKey)}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
         },
         body: JSON.stringify({ csvText }),
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setStatus(payload?.error ? `Save failed: ${payload.error}` : `Save failed: ${res.status}`);
+        setStatus(formatAuthError("Save failed", payload, res));
         return;
       }
       setLoadedUpdatedAt(payload.updatedAt ?? null);
@@ -241,6 +262,17 @@ export default function AdminData() {
                 <div className="text-xs text-text-secondary">
                   Stored in this browser session only.
                 </div>
+                {serverTokenDebug ? (
+                  <div className="text-xs text-text-secondary border border-tertiary/40 bg-secondary p-2">
+                    <div>Server: {serverTokenDebug.hostname}</div>
+                    <div>ADMIN_TOKEN configured: {serverTokenDebug.configured ? "yes" : "no"}</div>
+                    <div>Server token length: {serverTokenDebug.length}</div>
+                    <div>Your token length: {token.trim().length}</div>
+                    {serverTokenDebug.value ? (
+                      <div>Local server token: <code>{serverTokenDebug.value}</code></div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
 
               <div className="flex flex-col gap-2">

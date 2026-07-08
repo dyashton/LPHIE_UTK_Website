@@ -56,7 +56,7 @@ export default function Rush() {
 
     const heroImageUrl = Array.isArray(rushImages) && rushImages.length ? rushImages[imgIndex % rushImages.length] : null;
     return (
-        <div className="w-full min-h-dvh relative bg-background pt-20">
+        <div className="w-full min-h-dvh relative bg-background">
             {/* Hero: tall enough for imagery; bottom scrim blends into overlapping panel */}
             <div className="relative w-full h-[min(72vh,820px)] sm:h-[min(78vh,900px)] min-h-[22rem] overflow-hidden">
                 {/* Base wash when no photo or under photo */}
@@ -89,7 +89,7 @@ export default function Rush() {
             </div>
 
             {/* Overlaps hero: card sits on top of the background */}
-            <PageContainer className="relative z-30 -mt-14 sm:-mt-20 md:-mt-24 pb-16">
+            <PageContainer className="relative z-30 -mt-14 sm:-mt-20 md:-mt-24 pb-16 pt-20">
                 <Title as="h2" className="!text-2xl sm:!text-4xl lg:!text-5xl" text="Upcoming Rush Events" />
                 <div className="rush-events mt-5 sm:mt-7">
                     {displayRushEvents(upcomingRushEvents)}

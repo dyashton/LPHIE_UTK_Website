@@ -1,18 +1,8 @@
 import { DATASET_KEYS, isKnownKey } from '../../_shared/datasets.js';
+import { requireAdminToken } from '../../_shared/auth.js';
 
 function json(data, status = 200) {
   return Response.json(data, { status });
-}
-
-function requireAdminToken(request, env) {
-  const token = env.ADMIN_TOKEN;
-  if (!token) return { error: json({ error: 'ADMIN_TOKEN not configured' }, 500) };
-
-  const header = request.headers.get('authorization') || '';
-  const match = header.match(/^Bearer\s+(.+)$/i);
-  if (!match) return { error: json({ error: 'Missing Authorization: Bearer token' }, 401) };
-  if (match[1] !== token) return { error: json({ error: 'Invalid token' }, 403) };
-  return { ok: true };
 }
 
 async function readFallbackCsv(key, request) {
