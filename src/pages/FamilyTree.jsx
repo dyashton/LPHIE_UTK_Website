@@ -89,7 +89,7 @@ export default function FamilyTree() {
     }, [rawRows, family]);
 
     return (
-        <PageContainer className="pb-10 pt-20" maxWidthClassName="max-w-7xl">
+        <PageContainer className="pb-10" maxWidthClassName="max-w-7xl">
             <Title as="h1" text="Family Tree" />
 
             <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">

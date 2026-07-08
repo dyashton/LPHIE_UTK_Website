@@ -3,8 +3,8 @@ import PageContainer from "../components/PageContainer"
 
 export default function About() {
     return (
-        <PageContainer className="pb-20 pt-20">
-            <Title as="h1" className={"w-full text-start"} text="Beta Kappa Chapter" />
+        <PageContainer className="pb-20">
+            <Title as="h1" text="Beta Kappa Chapter" />
             <div className="main-content w-full mt-8 text-lg sm:text-xl">
                 <Title as="h2" className="mt-10 mb-3" text="What is Lambda Phi Epsilon?" />
                 <p className="lineheight-2">

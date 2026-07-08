@@ -31,7 +31,7 @@ export default function ChapterTimeline() {
     }, []);
 
     return (
-        <PageContainer className="pb-16 pt-20">
+        <PageContainer className="pb-16">
             <Title as="h1" text="Chapter Timeline" />
             <div className="timeline-container mt-8 p-2 sm:p-5">
                 <MotionDiv

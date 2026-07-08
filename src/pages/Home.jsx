@@ -42,7 +42,7 @@ export default function Home() {
 
     const heroImageUrl = Array.isArray(homeImages) && homeImages.length ? homeImages[imgIndex % homeImages.length] : null;
     return (
-        <div className="w-full min-h-dvh relative pb-16 pt-20">
+        <div className="w-full min-h-dvh relative pb-16">
             {/* Background hero */}
             <div className="absolute inset-0 w-full h-full bg-linear-to-b from-primary via-background to-background" />
             {heroImageUrl && !reducedMotion ? (
