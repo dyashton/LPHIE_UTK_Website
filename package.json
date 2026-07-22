@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:api": "npm run build && wrangler pages dev dist --port 8788",
+    "downsample:assets": "node scripts/downsample-assets.mjs",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -23,7 +24,6 @@
     "@radix-ui/react-select": "^2.2.6",
     "@tailwindcss/vite": "^4.1.18",
     "@vitejs/plugin-react": "^5.1.4",
-    "browser-image-compression": "^2.0.2",
     "dagre": "^0.8.5",
     "express": "^4.22.1",
     "framer-motion": "^12.23.26",
@@ -45,6 +45,7 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "gh-pages": "^6.3.0",
     "globals": "^16.5.0",
+    "sharp": "^0.35.3",
     "vite": "^7.3.1",
     "wrangler": "^4.14.0"
   }

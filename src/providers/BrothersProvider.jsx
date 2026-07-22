@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import Papa from "papaparse";
 import Brother from "../model/Brother";
 import { decodeURIEncodedString } from "../utils/utils";
-import { compressImageUrl, isBlobUrl, revokeBlobUrl } from "../utils/compressImage";
 import { BrothersContext } from "./BrothersContext";
 
 export default function BrothersProvider({ children }) {
@@ -12,7 +11,6 @@ export default function BrothersProvider({ children }) {
     const [rushImages, setRushImages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const blobUrlsRef = useRef(/** @type {string[]} */ ([]));
     const cancelledRef = useRef(false);
 
     const galleryImages = useMemo(
@@ -20,94 +18,40 @@ export default function BrothersProvider({ children }) {
         [homeImages, rushImages]
     );
 
-    function trackBlobUrl(url) {
-        if (isBlobUrl(url)) blobUrlsRef.current.push(url);
-        return url;
-    }
-
     function portraitNameFromUrl(url) {
         const fileName = url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("."));
         return decodeURIEncodedString(fileName).split("-")[0];
     }
 
-    /** Show originals immediately; swap in compressed versions one-by-one. */
-    async function loadBrothersImages() {
+    // ponytail: assets pre-downsampled via scripts/downsample-assets.mjs — no runtime compress
+    function loadBrothersImages() {
         const modules = import.meta.glob("../assets/portraits/*.{png,jpg,jpeg,svg}", {
             eager: true,
         });
-
         /** @type {Record<string, string>} */
-        const initial = {};
-        const jobs = Object.values(modules).map((module) => {
-            const url = module.default;
-            const name = portraitNameFromUrl(url);
-            initial[name] = url;
-            return { name, url };
-        });
-
-        if (!cancelledRef.current) setImages(initial);
-
-        await Promise.all(
-            jobs.map(async ({ name, url }) => {
-                const compressed = trackBlobUrl(await compressImageUrl(url, "portrait"));
-                if (cancelledRef.current) return;
-                setImages((prev) => {
-                    const prevUrl = prev[name];
-                    if (prevUrl && prevUrl !== compressed && isBlobUrl(prevUrl)) {
-                        revokeBlobUrl(prevUrl);
-                    }
-                    return { ...prev, [name]: compressed };
-                });
-            })
-        );
+        const map = {};
+        for (const module of Object.values(modules)) {
+            map[portraitNameFromUrl(module.default)] = module.default;
+        }
+        if (!cancelledRef.current) setImages(map);
     }
 
-    async function loadHomeImages() {
+    function loadHomeImages() {
         const modules = import.meta.glob("../assets/home/*.{png,jpg,jpeg,svg}", {
             eager: true,
         });
-        const originals = Object.values(modules).map((module) => module.default);
-        if (!cancelledRef.current) setHomeImages(originals);
-
-        await Promise.all(
-            originals.map(async (url, index) => {
-                const compressed = trackBlobUrl(await compressImageUrl(url, "hero"));
-                if (cancelledRef.current) return;
-                setHomeImages((prev) => {
-                    const next = [...prev];
-                    const prevUrl = next[index];
-                    if (prevUrl && prevUrl !== compressed && isBlobUrl(prevUrl)) {
-                        revokeBlobUrl(prevUrl);
-                    }
-                    next[index] = compressed;
-                    return next;
-                });
-            })
-        );
+        if (!cancelledRef.current) {
+            setHomeImages(Object.values(modules).map((module) => module.default));
+        }
     }
 
-    async function loadRushImages() {
+    function loadRushImages() {
         const modules = import.meta.glob("../assets/rush/*.{png,jpg,jpeg,svg}", {
             eager: true,
         });
-        const originals = Object.values(modules).map((module) => module.default);
-        if (!cancelledRef.current) setRushImages(originals);
-
-        await Promise.all(
-            originals.map(async (url, index) => {
-                const compressed = trackBlobUrl(await compressImageUrl(url, "hero"));
-                if (cancelledRef.current) return;
-                setRushImages((prev) => {
-                    const next = [...prev];
-                    const prevUrl = next[index];
-                    if (prevUrl && prevUrl !== compressed && isBlobUrl(prevUrl)) {
-                        revokeBlobUrl(prevUrl);
-                    }
-                    next[index] = compressed;
-                    return next;
-                });
-            })
-        );
+        if (!cancelledRef.current) {
+            setRushImages(Object.values(modules).map((module) => module.default));
+        }
     }
 
     async function loadBrothersDataCsv() {
@@ -163,9 +107,10 @@ export default function BrothersProvider({ children }) {
             try {
                 await loadBrothersDataCsv();
                 if (cancelledRef.current) return;
-                // CSV ready → page can render; images stream in progressively
+                loadBrothersImages();
+                loadHomeImages();
+                loadRushImages();
                 setLoading(false);
-                await Promise.all([loadBrothersImages(), loadHomeImages(), loadRushImages()]);
             } catch (err) {
                 console.error(err);
                 if (!cancelledRef.current) {
@@ -179,8 +124,6 @@ export default function BrothersProvider({ children }) {
 
         return () => {
             cancelledRef.current = true;
-            blobUrlsRef.current.forEach(revokeBlobUrl);
-            blobUrlsRef.current = [];
         };
     }, []);
 

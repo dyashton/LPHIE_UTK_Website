@@ -45,9 +45,9 @@ function OffSeasonStory() {
                     </Link>
                 </li>
                 <li>
-                    <Link to="/contact" className="text-accent underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
-                        Interest form / Contact
-                    </Link>
+                    <a href="#interest-form" className="text-accent underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
+                        Interest form
+                    </a>
                 </li>
             </ul>
             <p className="text-text-secondary">
@@ -168,6 +168,36 @@ export default function Rush() {
                         </Link>
                     </Reveal>
                 )}
+
+                <div id="interest-form">
+                    <Reveal className="mt-12">
+                        <Title as="h2" className="!text-2xl sm:!text-4xl lg:!text-5xl mb-4" text="Interest Form" />
+                        <p className="text-base sm:text-lg text-text-secondary max-w-2xl">
+                            Interested in learning more? Fill out this form and stay updated on our upcoming events and recruitment activities.
+                        </p>
+                        <div className="w-full mt-6 border border-tertiary/40 bg-primary/60">
+                            <iframe
+                                title="UTK Lambda Phi Epsilon Interest Form"
+                                src="https://docs.google.com/forms/d/e/1FAIpQLSdZYdswAKEQ92Bd6MVgTaOpZeQZBjp_JHBERZ8n-EhL0jQD5A/viewform?embedded=true"
+                                className="w-full h-[900px] sm:h-[1000px]"
+                            >
+                                Loading…
+                            </iframe>
+                        </div>
+                        <p className="mt-4 text-text-secondary">
+                            Prefer to open it separately?{" "}
+                            <a
+                                href="https://docs.google.com/forms/d/e/1FAIpQLSdZYdswAKEQ92Bd6MVgTaOpZeQZBjp_JHBERZ8n-EhL0jQD5A/viewform?pli=1"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-accent underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                            >
+                                Open the interest form
+                            </a>
+                            .
+                        </p>
+                    </Reveal>
+                </div>
 
                 <Reveal className="mt-12">
                     <InstagramStrip />
