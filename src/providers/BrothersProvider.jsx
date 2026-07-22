@@ -54,6 +54,20 @@ export default function BrothersProvider({ children }) {
         }
     }
 
+    // ponytail: CSV mixes line names ("Kill 'Em All") and full "First \"Line\" Last" — extract either
+    function resolveBrotherByName(brothersList, raw) {
+        const name = (raw || "").trim();
+        if (!name) return null;
+        const byLine = brothersList.find((b) => b.lineName === name);
+        if (byLine) return byLine;
+        const quoted = name.match(/"([^"]+)"/);
+        if (quoted) {
+            const byQuoted = brothersList.find((b) => b.lineName === quoted[1]);
+            if (byQuoted) return byQuoted;
+        }
+        return brothersList.find((b) => b.getFullName() === name) || null;
+    }
+
     async function loadBrothersDataCsv() {
         const res = await fetch("/api/datasets/brothers");
         if (!res.ok) throw new Error(`Brothers dataset failed (${res.status})`);
@@ -86,11 +100,11 @@ export default function BrothersProvider({ children }) {
 
         brothersFromCsv.forEach((brother) => {
             const bigBrothers = brother.bigsNames
-                .map((name) => brothersFromCsv.find((b) => b.lineName === name))
-                .filter((b) => b);
+                .map((name) => resolveBrotherByName(brothersFromCsv, name))
+                .filter(Boolean);
             const littleBrothers = brother.littlesNames
-                .map((name) => brothersFromCsv.find((b) => b.lineName === name))
-                .filter((b) => b);
+                .map((name) => resolveBrotherByName(brothersFromCsv, name))
+                .filter(Boolean);
             brother.setBig(bigBrothers);
             brother.setLittle(littleBrothers);
         });

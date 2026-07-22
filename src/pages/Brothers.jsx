@@ -8,9 +8,9 @@ const MotionDiv = motion.div;
 const MotionImg = motion.img;
 
 const DESKTOP_CARD_REM = 14;
-const DESKTOP_DETAILS_REM = 24;
+const DESKTOP_DETAILS_REM = 16;
 const MOBILE_CARD_REM = 7;
-const MOBILE_DETAILS_REM = 12;
+const MOBILE_DETAILS_REM = 9;
 
 // ponytail: easter egg keyed to CSV lineName — bump if Ashton ever renames
 const DEVELOPER_LINE_NAME = "AvaLoN";
@@ -213,15 +213,15 @@ function DeveloperEgg({ brother, imgSrc, onClose, jumpToBrother }) {
 
 function renderBigOrLittle(brothers, jumpToBrother) {
     if (!brothers?.length) {
-        return <div className="font-normal pl-4 sm:pl-8 text-text-secondary">—</div>;
+        return <div className="font-normal pl-3 sm:pl-4 text-text-secondary">—</div>;
     }
-    return <ul className="pl-4 sm:pl-8">
+    return <ul className="pl-3 sm:pl-4">
         {brothers.map((brother) => {
             return <li key={brother.getFullName()} onClick={(e) => {
                 e.stopPropagation();
                 jumpToBrother(brother)
             }}  
-                className="flex flex-row gap-[1ch] font-normal">
+                className="flex flex-row flex-wrap gap-x-[0.4ch] font-normal leading-tight">
                 <p>{brother.firstName}</p>
                 <p className="text-accent text-nowrap font-cinzel">"{brother.lineName}"</p>
                 <p>{brother.lastName}</p>
@@ -231,7 +231,7 @@ function renderBigOrLittle(brothers, jumpToBrother) {
 }
 
 function renderHobbies(hobbies) {
-    return <div className="font-normal pl-4 sm:pl-8">
+    return <div className="font-normal pl-3 sm:pl-4 leading-tight">
         {hobbies.join(", ")}
     </div>
 }
@@ -273,7 +273,7 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
     const detailsPx = detailsRem * 16;
     // ponytail: full class strings so Tailwind JIT sees them
     const portraitW = isMobile ? "w-[7rem]" : "w-[14rem]";
-    const detailsW = isMobile ? "w-[12rem]" : "w-[24rem]";
+    const detailsW = isMobile ? "w-[9rem]" : "w-[16rem]";
     const heightClass = isMobile ? "h-40" : "h-80";
 
     useEffect(() => {
@@ -371,7 +371,7 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                     {isExtended && (
                         <MotionDiv
                             key="back"
-                            className={`absolute top-0 ${detailsSide} rounded-xl text-[0.6rem] sm:text-xs font-medium flex flex-col items-center justify-start ${detailsW} h-full pt-1.5 px-2 sm:px-3 pb-3 gap-1.5 sm:gap-2 overflow-y-auto`}
+                            className={`absolute top-0 ${detailsSide} rounded-xl text-[0.5rem] sm:text-[0.7rem] font-medium flex flex-col items-center justify-start ${detailsW} h-full pt-1 px-1.5 sm:px-2.5 pb-2 gap-1 sm:gap-1.5 overflow-y-auto leading-tight`}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -387,13 +387,13 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                             </div>
                             <div className="crossing-class w-full">
                                 <p>Crossing Class: </p>
-                                <div className="font-cinzel text-accent text-sm sm:text-base pl-4 sm:pl-6">
+                                <div className="font-cinzel text-accent text-[0.6rem] sm:text-xs pl-3 sm:pl-4">
                                     {brother.getCrossingClass()}
                                 </div>
                             </div>
                             <div className="brother-hometown w-full">
                                 <p>Hometown: </p>
-                                <div className="font-normal pl-4 sm:pl-6">
+                                <div className="font-normal pl-3 sm:pl-4">
                                     {brother.hometown}
                                 </div>
                             </div>
