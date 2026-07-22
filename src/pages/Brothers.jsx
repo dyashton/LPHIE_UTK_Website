@@ -9,8 +9,8 @@ const MotionImg = motion.img;
 
 const DESKTOP_CARD_REM = 14;
 const DESKTOP_DETAILS_REM = 24;
-const MOBILE_CARD_REM = 10;
-const MOBILE_DETAILS_REM = 16;
+const MOBILE_CARD_REM = 7;
+const MOBILE_DETAILS_REM = 12;
 
 // ponytail: easter egg keyed to CSV lineName — bump if Ashton ever renames
 const DEVELOPER_LINE_NAME = "AvaLoN";
@@ -212,7 +212,10 @@ function DeveloperEgg({ brother, imgSrc, onClose, jumpToBrother }) {
 
 
 function renderBigOrLittle(brothers, jumpToBrother) {
-    return <ul className="pl-8">
+    if (!brothers?.length) {
+        return <div className="font-normal pl-4 sm:pl-8 text-text-secondary">—</div>;
+    }
+    return <ul className="pl-4 sm:pl-8">
         {brothers.map((brother) => {
             return <li key={brother.getFullName()} onClick={(e) => {
                 e.stopPropagation();
@@ -228,7 +231,7 @@ function renderBigOrLittle(brothers, jumpToBrother) {
 }
 
 function renderHobbies(hobbies) {
-    return <div className="font-normal pl-8">
+    return <div className="font-normal pl-4 sm:pl-8">
         {hobbies.join(", ")}
     </div>
 }
@@ -269,9 +272,9 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
     const detailsRem = isMobile ? MOBILE_DETAILS_REM : DESKTOP_DETAILS_REM;
     const detailsPx = detailsRem * 16;
     // ponytail: full class strings so Tailwind JIT sees them
-    const portraitW = isMobile ? "w-[10rem]" : "w-[14rem]";
-    const detailsW = isMobile ? "w-[16rem]" : "w-[24rem]";
-    const heightClass = isMobile ? "h-56" : "h-80";
+    const portraitW = isMobile ? "w-[7rem]" : "w-[14rem]";
+    const detailsW = isMobile ? "w-[12rem]" : "w-[24rem]";
+    const heightClass = isMobile ? "h-40" : "h-80";
 
     useEffect(() => {
         if (!isExtended) return;
@@ -287,6 +290,8 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
     const detailsSide = expandRight ? "right-0" : "left-0";
     const cardAnchor = expandRight ? "left-0" : "right-0";
     const fadeMask = expandRight ? fadeMaskRight : fadeMaskLeft;
+    const bigLabel = brother.bigs.length > 1 ? "Bigs:" : "Big:";
+    const littleLabel = brother.littles.length === 1 ? "Little:" : "Littles:";
 
     return (
         // Fixed layout footprint; visual card overlays neighbors when expanded.
@@ -325,11 +330,11 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                     key="front"
                     className={`rounded-xl ${portraitW} h-full absolute top-0 ${portraitSide}`}
                 >
-                    <div className="absolute w-full h-10 sm:h-12 top-0 left-0 bg-linear-to-b from-[rgba(33,33,33,1.5)] to-[rgba(0,0,0,0)] z-5">
-                        <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 text-xl sm:text-2xl text-text-primary outlined-text font-cinzel font-bold select-none pointer-events-none z-5">
+                    <div className="absolute w-full h-8 sm:h-10 top-0 left-0 bg-linear-to-b from-[rgba(33,33,33,1.5)] to-[rgba(0,0,0,0)] z-5">
+                        <div className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 text-sm sm:text-lg text-text-primary outlined-text font-cinzel font-bold select-none pointer-events-none z-5">
                             {brother.lineNumber}
                         </div>
-                        <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 w-3/4 text-sm sm:text-base text-text-primary font-cinzel font-bold select-none pointer-events-none z-5">
+                        <div className="absolute top-1 left-1 sm:top-1.5 sm:left-1.5 w-3/4 text-[0.55rem] sm:text-xs text-text-primary font-cinzel font-bold select-none pointer-events-none z-5">
                             {brother.position}
                         </div>
                     </div>
@@ -345,20 +350,20 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                         />
                     ) : (
                         <div className={`absolute top-0 ${portraitSide} ${portraitW} h-full bg-linear-to-b from-secondary/40 via-primary to-primary flex items-center justify-center`}>
-                            <div className="text-3xl sm:text-4xl font-cinzel text-text-primary/70 select-none">
+                            <div className="text-2xl sm:text-3xl font-cinzel text-text-primary/70 select-none">
                                 {(firstName?.[0] || "").toUpperCase()}{(lastName?.[0] || "").toUpperCase()}
                             </div>
                         </div>
                     )}
-                    <div className="relative z-10 h-full flex flex-col items-center justify-end px-2 sm:px-3 bg-linear-to-b from-[rgba(0,0,0,0)] to-[rgba(33,33,33,1.5)] text-text-primary pb-3 sm:pb-4">
-                        <div className="brother-position text-sm sm:text-base font-medium w-full leading-snug">{firstName}{" "}
+                    <div className="relative z-10 h-full flex flex-col items-center justify-end px-1 sm:px-2 bg-linear-to-b from-[rgba(0,0,0,0)] to-[rgba(33,33,33,1.5)] text-text-primary pb-1.5 sm:pb-3">
+                        <div className="brother-position text-[0.55rem] sm:text-xs font-medium w-full leading-tight">{firstName}{" "}
                             <span className="text-accent font-cinzel">"{brother.lineName}"</span>{" "}
                             {lastName}</div>
-                        <p className="brother-details text-xs sm:text-sm w-full">{brother.major}</p>
-                        <h2 className="brother-name text-xs sm:text-sm w-full">
+                        <p className="brother-details text-[0.5rem] sm:text-[0.7rem] w-full leading-tight">{brother.major}</p>
+                        <h2 className="brother-name text-[0.5rem] sm:text-[0.7rem] w-full leading-tight">
                             {brother.family} Family
                         </h2>
-                        <p className="brother-details text-xs sm:text-sm w-full">{brother.classYear}</p>
+                        <p className="brother-details text-[0.5rem] sm:text-[0.7rem] w-full leading-tight">{brother.classYear}</p>
                     </div>
                 </MotionDiv>
 
@@ -366,29 +371,29 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                     {isExtended && (
                         <MotionDiv
                             key="back"
-                            className={`absolute top-0 ${detailsSide} rounded-xl text-xs sm:text-sm font-medium flex flex-col items-center justify-start ${detailsW} h-full pt-2 px-3 sm:px-4 pb-4 gap-2 sm:gap-3 overflow-y-auto`}
+                            className={`absolute top-0 ${detailsSide} rounded-xl text-[0.6rem] sm:text-xs font-medium flex flex-col items-center justify-start ${detailsW} h-full pt-1.5 px-2 sm:px-3 pb-3 gap-1.5 sm:gap-2 overflow-y-auto`}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.5, ease: "easeInOut" }}
                         >
                             <div className="brother-big w-full">
-                                <p>Big{brother.bigs.length !== 1 ? "s" : ""}:</p>
+                                <p>{bigLabel}</p>
                                 {renderBigOrLittle(brother.bigs, jumpToBrother)}
                             </div>
                             <div className="brother-littles w-full">
-                                <p>Little{brother.littles.length !== 1 ? "s" : ""}: </p>
+                                <p>{littleLabel}</p>
                                 {renderBigOrLittle(brother.littles, jumpToBrother)}
                             </div>
                             <div className="crossing-class w-full">
                                 <p>Crossing Class: </p>
-                                <div className="font-cinzel text-accent text-lg pl-6">
+                                <div className="font-cinzel text-accent text-sm sm:text-base pl-4 sm:pl-6">
                                     {brother.getCrossingClass()}
                                 </div>
                             </div>
                             <div className="brother-hometown w-full">
                                 <p>Hometown: </p>
-                                <div className="font-normal pl-6">
+                                <div className="font-normal pl-4 sm:pl-6">
                                     {brother.hometown}
                                 </div>
                             </div>
