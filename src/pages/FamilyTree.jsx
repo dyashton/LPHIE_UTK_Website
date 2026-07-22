@@ -6,7 +6,6 @@ import { BrothersContext } from "../providers/BrothersContext";
 import Papa from "papaparse";
 import PageContainer from "../components/PageContainer";
 
-
 /**
  * Convert flat rows into parent → children tree
  */
@@ -15,7 +14,6 @@ function buildTree(rows) {
     const nodes = {};
     const roots = [];
 
-    // Create node for each brother
     rows.forEach((row) => {
         const id = row.brother;
 
@@ -30,7 +28,6 @@ function buildTree(rows) {
         };
     });
 
-    // Link parents → children
     rows.forEach((row) => {
         const childId = row.brother;
         const parentId = row.parent;
@@ -38,7 +35,6 @@ function buildTree(rows) {
         if (parentId && nodes[parentId]) {
             nodes[parentId].children.push(nodes[childId]);
         } else {
-            // No parent → root of this family
             roots.push(nodes[childId]);
         }
     });
@@ -50,32 +46,40 @@ export default function FamilyTree() {
     const [rawRows, setRawRows] = useState([]);
     const [hoverUni, setHoverUni] = useState("");
     const [hoverFamily, setHoverFamily] = useState("");
+    const [status, setStatus] = useState("loading");
 
     useContext(BrothersContext);
 
-    // Load CSV inside React
     useEffect(() => {
         let cancelled = false;
 
         async function load() {
-            const res = await fetch("/api/datasets/familyTree");
-            const payload = await res.json();
-            const results = Papa.parse(payload.csvText, { header: true, skipEmptyLines: true });
+            try {
+                const res = await fetch("/api/datasets/familyTree");
+                if (!res.ok) throw new Error("familyTree");
+                const payload = await res.json();
+                const results = Papa.parse(payload.csvText, { header: true, skipEmptyLines: true });
 
-            const rows = [];
-            results.data.forEach((item) => {
-                rows.push({
-                    family: item.family,
-                    brother: item.brother,
-                    parent: item.parent,
-                    school: item.school,
-                    label: item.label,
+                const rows = [];
+                results.data.forEach((item) => {
+                    rows.push({
+                        family: item.family,
+                        brother: item.brother,
+                        parent: item.parent,
+                        school: item.school,
+                        label: item.label,
+                    });
                 });
-            });
-            if (!cancelled) setRawRows(rows);
+                if (!cancelled) {
+                    setRawRows(rows);
+                    setStatus("ok");
+                }
+            } catch {
+                if (!cancelled) setStatus("error");
+            }
         }
 
-        load().catch((err) => console.error(err));
+        load();
         return () => { cancelled = true; };
     }, []);
 
@@ -91,6 +95,9 @@ export default function FamilyTree() {
     return (
         <PageContainer className="pb-10" maxWidthClassName="max-w-7xl">
             <Title as="h1" text="Family Tree" />
+
+            {status === "loading" && <p className="mt-6 text-text-secondary">Loading family tree…</p>}
+            {status === "error" && <p className="mt-6 text-text-secondary">Couldn’t load family tree data.</p>}
 
             <div className="mt-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="w-full lg:w-auto">
@@ -153,7 +160,9 @@ export default function FamilyTree() {
             </div>
 
             <div className="h-[70vh] sm:h-[75vh] lg:h-[78vh] w-full mt-6 border border-tertiary/30 bg-primary/40">
-                <FamilyTreeCanvas treeData={treeData} hoverUni={hoverUni} hoverFamily={hoverFamily} />
+                {status === "ok" && (
+                    <FamilyTreeCanvas treeData={treeData} hoverUni={hoverUni} hoverFamily={hoverFamily} />
+                )}
             </div>
         </PageContainer>
     );

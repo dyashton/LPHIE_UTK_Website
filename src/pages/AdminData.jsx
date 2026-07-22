@@ -1,34 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
-import Title from "../components/Title";
 import Papa from "papaparse";
 import PageContainer from "../components/PageContainer";
 
 const DATASETS = [
-  { key: "brothers", label: "Brothers (brotherdata.csv)" },
-  { key: "familyTree", label: "Family Tree (FamilyTreeData.csv)" },
-  { key: "rush", label: "Rush Events (rushData.csv)" },
-  { key: "timeline", label: "Chapter Timeline (timelinedata.csv)" },
+  { key: "brothers", label: "Brothers" },
+  { key: "familyTree", label: "Family Tree" },
+  { key: "rush", label: "Rush Events" },
+  { key: "timeline", label: "Timeline" },
 ];
 
 const DEFAULT_COLUMNS_BY_KEY = {
-  timeline: ["date", "title", "description"],
+  timeline: ["date", "title", "description", "imageIndex"],
   rush: ["date", "title", "description"],
 };
 
-function isLongTextColumn(column) {
-  const c = String(column || "").toLowerCase();
-  return (
-    c.includes("description") ||
-    c.includes("hobbies") ||
-    c.includes("major") ||
-    c.includes("hometown") ||
-    c.includes("bigs") ||
-    c.includes("littles")
-  );
-}
+// ponytail: shared py keeps row heights even without table-fixed squeezing columns
+const FIELD =
+  "box-border w-full bg-transparent text-text-primary px-2 py-2 text-sm outline-none border-0 border-b border-tertiary/25 focus:border-accent focus:bg-secondary/30 disabled:opacity-50";
 
 function formatUpdatedAt(updatedAt) {
-  if (!updatedAt) return "unknown";
+  if (!updatedAt) return "—";
   const d = new Date(updatedAt);
   if (Number.isNaN(d.getTime())) return String(updatedAt);
   return d.toLocaleString();
@@ -48,10 +39,32 @@ function formatAuthError(prefix, payload, res) {
   if (payload?.debug) {
     const { receivedLength, expectedLength, receivedHadWhitespace } = payload.debug;
     msg += ` (you sent ${receivedLength} chars, server expects ${expectedLength}`;
-    if (receivedHadWhitespace) msg += ', whitespace detected';
-    msg += ')';
+    if (receivedHadWhitespace) msg += ", whitespace detected";
+    msg += ")";
   }
   return msg;
+}
+
+/** @returns {{ columns: string[], rows: Array<Record<string, string>> }} */
+function parseDatasetCsv(csvText, datasetKey) {
+  const preferredColumns = DEFAULT_COLUMNS_BY_KEY[datasetKey] ?? [];
+  const parsed = Papa.parse(csvText ?? "", { header: true, skipEmptyLines: true });
+  const csvColumns = Array.isArray(parsed.meta?.fields) ? parsed.meta.fields : [];
+  const inferredColumns = csvColumns.length
+    ? csvColumns
+    : parsed.data?.[0]
+      ? Object.keys(parsed.data[0])
+      : [];
+  const columns = preferredColumns.length ? preferredColumns : inferredColumns;
+  const rows = (parsed.data ?? []).map((r) => {
+    /** @type {Record<string, string>} */
+    const out = {};
+    columns.forEach((c) => {
+      out[c] = r?.[c] != null ? String(r[c]) : "";
+    });
+    return out;
+  });
+  return { columns, rows };
 }
 
 export default function AdminData() {
@@ -59,20 +72,23 @@ export default function AdminData() {
   const [datasetKey, setDatasetKey] = useState("brothers");
   const [file, setFile] = useState(null);
   const [status, setStatus] = useState("");
+  const [statusKind, setStatusKind] = useState(/** @type {"idle" | "ok" | "err" | "busy"} */ ("idle"));
   const [busy, setBusy] = useState(false);
   const [filter, setFilter] = useState("");
   const [serverTokenDebug, setServerTokenDebug] = useState(null);
+  const [showImport, setShowImport] = useState(false);
 
   const [columns, setColumns] = useState(/** @type {string[]} */ ([]));
   const [rows, setRows] = useState(/** @type {Array<Record<string, string>>} */ ([]));
   const [loadedUpdatedAt, setLoadedUpdatedAt] = useState(null);
 
-  const datasetLabel = useMemo(() => DATASETS.find((d) => d.key === datasetKey)?.label ?? datasetKey, [datasetKey]);
-
-  const hasEditor = true;
+  const datasetLabel = useMemo(
+    () => DATASETS.find((d) => d.key === datasetKey)?.label ?? datasetKey,
+    [datasetKey],
+  );
 
   useEffect(() => {
-    fetch('/api/debug/admin-token')
+    fetch("/api/debug/admin-token")
       .then((res) => res.json())
       .then((data) => setServerTokenDebug(data))
       .catch(() => setServerTokenDebug(null));
@@ -82,35 +98,22 @@ export default function AdminData() {
     let cancelled = false;
 
     async function loadDatasetIntoEditor() {
-      if (!hasEditor) return;
-
       setBusy(true);
-      setStatus("Loading current dataset…");
+      setStatusKind("busy");
+      setStatus("Loading…");
       try {
         const res = await fetch(`/api/datasets/${encodeURIComponent(datasetKey)}`);
         const payload = await res.json().catch(() => ({}));
         if (!res.ok) {
+          setStatusKind("err");
           setStatus(payload?.error ? `Load failed: ${payload.error}` : `Load failed: ${res.status}`);
           return;
         }
 
-        const preferredColumns = DEFAULT_COLUMNS_BY_KEY[datasetKey] ?? [];
-        const parsed = Papa.parse(payload.csvText ?? "", { header: true, skipEmptyLines: true });
-        const csvColumns = Array.isArray(parsed.meta?.fields) ? parsed.meta.fields : [];
-        const inferredColumns =
-          csvColumns.length
-            ? csvColumns
-            : (parsed.data?.[0] ? Object.keys(parsed.data[0]) : []);
-        const nextColumns = preferredColumns.length ? preferredColumns : inferredColumns;
-
-        const normalizedRows = (parsed.data ?? []).map((r) => {
-          /** @type {Record<string, string>} */
-          const out = {};
-          nextColumns.forEach((c) => {
-            out[c] = r?.[c] != null ? String(r[c]) : "";
-          });
-          return out;
-        });
+        const { columns: nextColumns, rows: normalizedRows } = parseDatasetCsv(
+          payload.csvText,
+          datasetKey,
+        );
 
         if (cancelled) return;
         setColumns(nextColumns);
@@ -118,8 +121,12 @@ export default function AdminData() {
         setLoadedUpdatedAt(payload.updatedAt ?? null);
         setFilter("");
         setStatus("");
+        setStatusKind("idle");
       } catch (err) {
-        if (!cancelled) setStatus(`Load failed: ${err?.message ?? String(err)}`);
+        if (!cancelled) {
+          setStatusKind("err");
+          setStatus(`Load failed: ${err?.message ?? String(err)}`);
+        }
       } finally {
         if (!cancelled) setBusy(false);
       }
@@ -129,26 +136,28 @@ export default function AdminData() {
     return () => {
       cancelled = true;
     };
-  }, [datasetKey, hasEditor]);
+  }, [datasetKey]);
 
   async function uploadCsvFile() {
     if (!file) {
+      setStatusKind("err");
       setStatus("Choose a CSV file first.");
       return;
     }
     if (!token.trim()) {
+      setStatusKind("err");
       setStatus("Enter your admin token first.");
       return;
     }
 
     setBusy(true);
-    setStatus("Reading file…");
+    setStatusKind("busy");
+    setStatus("Uploading…");
     try {
       const authToken = token.trim();
       sessionStorage.setItem("adminToken", authToken);
       const csvText = await file.text();
 
-      setStatus("Uploading…");
       const res = await fetch(`/api/datasets/${encodeURIComponent(datasetKey)}`, {
         method: "POST",
         headers: {
@@ -160,11 +169,24 @@ export default function AdminData() {
 
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) {
+        setStatusKind("err");
         setStatus(formatAuthError("Upload failed", payload, res));
         return;
       }
-      setStatus(`Uploaded ${datasetLabel}. Updated at: ${payload.updatedAt ?? "now"}`);
+      setStatusKind("ok");
+      setStatus(`Imported ${datasetLabel} · ${formatUpdatedAt(payload.updatedAt)}`);
+      setFile(null);
+      setShowImport(false);
+      const reload = await fetch(`/api/datasets/${encodeURIComponent(datasetKey)}`);
+      const reloadPayload = await reload.json().catch(() => ({}));
+      if (reload.ok) {
+        const parsed = parseDatasetCsv(reloadPayload.csvText, datasetKey);
+        setColumns(parsed.columns);
+        setRows(parsed.rows);
+        setLoadedUpdatedAt(reloadPayload.updatedAt ?? null);
+      }
     } catch (err) {
+      setStatusKind("err");
       setStatus(`Upload failed: ${err?.message ?? String(err)}`);
     } finally {
       setBusy(false);
@@ -173,15 +195,18 @@ export default function AdminData() {
 
   async function saveEditor() {
     if (!token.trim()) {
+      setStatusKind("err");
       setStatus("Enter your admin token first.");
       return;
     }
     if (!columns.length) {
+      setStatusKind("err");
       setStatus("No columns loaded.");
       return;
     }
 
     setBusy(true);
+    setStatusKind("busy");
     setStatus("Saving…");
     try {
       const authToken = token.trim();
@@ -198,12 +223,15 @@ export default function AdminData() {
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) {
+        setStatusKind("err");
         setStatus(formatAuthError("Save failed", payload, res));
         return;
       }
       setLoadedUpdatedAt(payload.updatedAt ?? null);
-      setStatus(`Saved ${datasetLabel}. Updated at: ${payload.updatedAt ?? "now"}`);
+      setStatusKind("ok");
+      setStatus(`Saved ${datasetLabel} · ${formatUpdatedAt(payload.updatedAt)}`);
     } catch (err) {
+      setStatusKind("err");
       setStatus(`Save failed: ${err?.message ?? String(err)}`);
     } finally {
       setBusy(false);
@@ -230,224 +258,260 @@ export default function AdminData() {
 
   const filteredRows = useMemo(() => {
     const q = filter.trim().toLowerCase();
-    if (!q) return rows;
-    return rows.filter((r) => columns.some((c) => String(r?.[c] ?? "").toLowerCase().includes(q)));
+    // ponytail: keep original index so filter + edit/delete stay aligned
+    const indexed = rows.map((row, index) => ({ row, index }));
+    if (!q) return indexed;
+    return indexed.filter(({ row }) =>
+      columns.some((c) => String(row?.[c] ?? "").toLowerCase().includes(q)),
+    );
   }, [rows, columns, filter]);
 
   const colWidth = useMemo(() => {
     /** @type {Record<string, string>} */
     const widths = {};
     columns.forEach((c) => {
-      widths[c] = isLongTextColumn(c) ? "18rem" : "14rem";
+      const name = String(c || "").toLowerCase();
+      const long =
+        name.includes("description") ||
+        name.includes("hobbies") ||
+        name.includes("major") ||
+        name.includes("hometown") ||
+        name.includes("bigs") ||
+        name.includes("littles");
+      widths[c] = long ? "16rem" : "11rem";
     });
     return widths;
   }, [columns]);
 
-  return (
-    <PageContainer className="pb-16" maxWidthClassName="max-w-7xl">
-        <Title as="h1" text="Admin Data" />
+  const tableMinWidth = useMemo(() => {
+    let px = 3 * 16 + 4.5 * 16; // # + actions
+    columns.forEach((c) => {
+      px += (colWidth[c] === "16rem" ? 16 : 11) * 16;
+    });
+    return px;
+  }, [columns, colWidth]);
 
-        <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <div className="border border-tertiary/40 bg-primary p-5 flex flex-col gap-4">
-              <div className="flex flex-col gap-2">
-                <div className="text-sm text-text-secondary">Admin token</div>
-                <input
-                  type="password"
-                  className="w-full rounded-none border border-tertiary/40 bg-secondary text-text-primary p-3"
-                  value={token}
-                  onChange={(e) => setToken(e.target.value)}
-                  placeholder="Paste ADMIN_TOKEN here"
-                />
-                <div className="text-xs text-text-secondary">
-                  Stored in this browser session only.
+  const statusClass =
+    statusKind === "err"
+      ? "text-uga-red"
+      : statusKind === "ok"
+        ? "text-unc-charlotte-green"
+        : "text-text-secondary";
+
+  return (
+    <PageContainer className="pb-16" maxWidthClassName="max-w-[1600px]">
+      {/* Header */}
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-text-secondary">Internal</p>
+          <h1 className="mt-1 text-2xl sm:text-3xl font-medium text-text-primary tracking-tight">
+            Data editor
+          </h1>
+        </div>
+        <p className="text-xs text-text-secondary max-w-md sm:text-right">
+          Not linked in nav. Changes go live on refresh — no redeploy.
+        </p>
+      </div>
+
+      {/* Auth */}
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-end border-b border-tertiary/20 pb-4">
+        <label className="flex-1 min-w-0 flex flex-col gap-1.5">
+          <span className="text-xs text-text-secondary">Admin token</span>
+          <input
+            type="password"
+            className="w-full max-w-md bg-secondary/40 text-text-primary px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-accent"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            placeholder="Paste ADMIN_TOKEN"
+            autoComplete="off"
+          />
+        </label>
+        <details className="text-xs text-text-secondary">
+          <summary className="cursor-pointer select-none hover:text-text-primary py-2">
+            Diagnostics
+          </summary>
+          <div className="mt-2 space-y-1 font-mono text-[11px] leading-relaxed max-w-md">
+            {serverTokenDebug ? (
+              <>
+                <div>host: {serverTokenDebug.hostname}</div>
+                <div>token configured: {serverTokenDebug.configured ? "yes" : "no"}</div>
+                <div>
+                  lengths — server {serverTokenDebug.length} / yours {token.trim().length}
                 </div>
-                {serverTokenDebug ? (
-                  <div className="text-xs text-text-secondary border border-tertiary/40 bg-secondary p-2">
-                    <div>Server: {serverTokenDebug.hostname}</div>
-                    <div>ADMIN_TOKEN configured: {serverTokenDebug.configured ? "yes" : "no"}</div>
-                    <div>Server token length: {serverTokenDebug.length}</div>
-                    <div>Your token length: {token.trim().length}</div>
-                    {serverTokenDebug.value ? (
-                      <div>Local server token: <code>{serverTokenDebug.value}</code></div>
-                    ) : null}
+                {serverTokenDebug.value ? (
+                  <div>
+                    local value: <code className="text-accent">{serverTokenDebug.value}</code>
                   </div>
                 ) : null}
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <div className="text-sm text-text-secondary">Dataset</div>
-                <select
-                  className="w-full rounded-none border border-tertiary/40 bg-secondary text-text-primary p-3"
-                  value={datasetKey}
-                  onChange={(e) => setDatasetKey(e.target.value)}
-                >
-                  {DATASETS.map((d) => (
-                    <option key={d.key} value={d.key}>
-                      {d.label}
-                    </option>
-                  ))}
-                </select>
-                <div className="text-xs text-text-secondary">
-                  Last updated: {formatUpdatedAt(loadedUpdatedAt)}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <div className="text-sm text-text-secondary">Search rows</div>
-                <input
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
-                  placeholder="Filter by any cell…"
-                  className="w-full rounded-none border border-tertiary/40 bg-secondary text-text-primary p-3"
-                />
-                <div className="text-xs text-text-secondary">
-                  Showing {filteredRows.length} of {rows.length} rows
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-2">
-                <div className="text-sm text-text-secondary">Import CSV (replace)</div>
-                <input
-                  type="file"
-                  accept=".csv,text/csv"
-                  className="w-full text-text-primary"
-                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                />
-                <button
-                  type="button"
-                  disabled={busy || !file}
-                  onClick={uploadCsvFile}
-                  className="px-4 py-2 rounded-none bg-secondary text-text-primary border border-tertiary/40 disabled:opacity-60"
-                >
-                  Import
-                </button>
-              </div>
-
-              <div className="text-xs text-text-secondary">
-                Users see updates on refresh (no redeploy).
-              </div>
+              </>
+            ) : (
+              <div>Could not reach /api/debug/admin-token</div>
+            )}
+            <div className="pt-1 text-text-secondary/80 normal-case font-sans">
+              Session-only storage. Timeline may use optional{" "}
+              <code className="text-accent">imageIndex</code> (0-based gallery index).
             </div>
           </div>
+        </details>
+      </div>
 
-          <div className="lg:col-span-2">
-            <div className="border border-tertiary/40 bg-primary">
-              <div className="p-4 border-b border-tertiary/40 flex flex-col gap-3">
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="text-text-primary font-medium">
-                    Editing: {datasetLabel}
-                  </div>
-                  <div className="text-xs text-text-secondary">
-                    {columns.length ? `${columns.length} columns` : "No columns"}
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="button"
-                    disabled={busy || !columns.length}
-                    onClick={addRow}
-                    className="px-4 py-2 rounded-none bg-secondary text-text-primary border border-tertiary/40 disabled:opacity-60"
-                  >
-                    Add row
-                  </button>
-                  <button
-                    type="button"
-                    disabled={busy || !columns.length}
-                    onClick={saveEditor}
-                    className="px-4 py-2 rounded-none bg-accent text-white disabled:opacity-60"
-                  >
-                    {busy ? "Working…" : "Save changes"}
-                  </button>
-
-                  {status ? (
-                    <div className="text-sm text-text-primary px-3 py-2 rounded-none border border-tertiary/40 bg-secondary">
-                      {status}
-                    </div>
-                  ) : (
-                    <div className="text-sm text-text-secondary">
-                      Tip: use the search box to quickly find rows.
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="w-full overflow-auto">
-                <table className="min-w-[900px] w-full border-collapse table-fixed">
-                  <colgroup>
-                    <col style={{ width: "4rem" }} />
-                    <col style={{ width: "7rem" }} />
-                    {columns.map((c) => (
-                      <col key={c} style={{ width: colWidth[c] ?? "14rem" }} />
-                    ))}
-                  </colgroup>
-                  <thead className="bg-secondary text-text-primary sticky top-0 z-10">
-                    <tr>
-                      <th className="text-left p-3 border-b border-tertiary/40 w-16 bg-secondary">
-                        #
-                      </th>
-                      <th className="text-left p-3 border-b border-tertiary/40 w-28 bg-secondary">
-                        Actions
-                      </th>
-                      {columns.map((c) => (
-                        <th key={c} className="text-left p-3 border-b border-tertiary/40 whitespace-nowrap">
-                          {c}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="bg-primary text-text-primary">
-                    {filteredRows.map((row, rowIdx) => (
-                      <tr key={rowIdx} className="border-b border-tertiary/40 hover:bg-secondary/20">
-                        <td className="p-2 align-top bg-primary w-16">
-                          {rowIdx + 1}
-                        </td>
-                        <td className="p-2 align-top bg-primary w-28">
-                          <button
-                            type="button"
-                            disabled={busy}
-                            onClick={() => deleteRow(rowIdx)}
-                            className="px-3 py-2 rounded-none bg-secondary border border-tertiary/40 text-text-primary disabled:opacity-60"
-                          >
-                            Delete
-                          </button>
-                        </td>
-                        {columns.map((c) => (
-                          <td key={c} className="p-2 align-top">
-                            {isLongTextColumn(c) ? (
-                              <textarea
-                                value={row?.[c] ?? ""}
-                                disabled={busy}
-                                rows={3}
-                                onChange={(e) => updateCell(rowIdx, c, e.target.value)}
-                                className="w-full rounded-none border border-tertiary/40 bg-secondary text-text-primary p-2 resize-y"
-                              />
-                            ) : (
-                              <input
-                                value={row?.[c] ?? ""}
-                                disabled={busy}
-                                onChange={(e) => updateCell(rowIdx, c, e.target.value)}
-                                className="w-full rounded-none border border-tertiary/40 bg-secondary text-text-primary p-2"
-                              />
-                            )}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                    {!filteredRows.length && (
-                      <tr>
-                        <td className="p-4 text-text-secondary" colSpan={columns.length + 2}>
-                          No matching rows.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+      {/* Dataset tabs + toolbar */}
+      <div className="mt-6 flex flex-col gap-4">
+        <div className="flex flex-wrap gap-1 border-b border-tertiary/20">
+          {DATASETS.map((d) => {
+            const active = d.key === datasetKey;
+            return (
+              <button
+                key={d.key}
+                type="button"
+                disabled={busy}
+                onClick={() => setDatasetKey(d.key)}
+                className={[
+                  "px-3 py-2 text-sm -mb-px border-b-2 transition-colors disabled:opacity-50",
+                  active
+                    ? "border-accent text-text-primary"
+                    : "border-transparent text-text-secondary hover:text-text-primary",
+                ].join(" ")}
+              >
+                {d.label}
+              </button>
+            );
+          })}
         </div>
+
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              disabled={busy || !columns.length}
+              onClick={addRow}
+              className="px-3 py-1.5 text-sm text-text-primary bg-secondary/50 hover:bg-secondary disabled:opacity-50"
+            >
+              Add row
+            </button>
+            <button
+              type="button"
+              disabled={busy || !columns.length}
+              onClick={saveEditor}
+              className="px-3 py-1.5 text-sm bg-accent text-white hover:brightness-110 disabled:opacity-50"
+            >
+              {busy && statusKind === "busy" ? "Working…" : "Save"}
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => setShowImport((v) => !v)}
+              className="px-3 py-1.5 text-sm text-text-secondary hover:text-text-primary disabled:opacity-50"
+            >
+              {showImport ? "Cancel import" : "Import CSV"}
+            </button>
+            <span className="text-xs text-text-secondary ml-1">
+              {columns.length} cols · {filteredRows.length}
+              {filter.trim() ? ` / ${rows.length}` : ""} rows · updated {formatUpdatedAt(loadedUpdatedAt)}
+            </span>
+          </div>
+
+          <label className="flex items-center gap-2 min-w-0 lg:w-72">
+            <span className="sr-only">Search rows</span>
+            <input
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="Filter rows…"
+              className="w-full bg-secondary/40 text-text-primary px-3 py-1.5 text-sm outline-none focus:ring-1 focus:ring-accent"
+            />
+          </label>
+        </div>
+
+        {showImport ? (
+          <div className="flex flex-wrap items-center gap-3 text-sm bg-secondary/25 px-3 py-2">
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              className="text-text-secondary file:mr-3 file:px-3 file:py-1 file:border-0 file:bg-secondary file:text-text-primary file:text-sm file:cursor-pointer"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            />
+            <button
+              type="button"
+              disabled={busy || !file}
+              onClick={uploadCsvFile}
+              className="px-3 py-1.5 bg-secondary text-text-primary disabled:opacity-50"
+            >
+              Replace dataset
+            </button>
+            <span className="text-xs text-text-secondary">Replaces all rows for {datasetLabel}.</span>
+          </div>
+        ) : null}
+
+        {status ? <p className={`text-sm ${statusClass}`}>{status}</p> : null}
+      </div>
+
+      {/* Table */}
+      <div className="mt-4 overflow-auto max-h-[min(70vh,900px)] border-t border-tertiary/20">
+        <table className="border-collapse text-sm" style={{ width: tableMinWidth, minWidth: tableMinWidth }}>
+          <colgroup>
+            <col style={{ width: "3rem" }} />
+            <col style={{ width: "4.5rem" }} />
+            {columns.map((c) => (
+              <col key={c} style={{ width: colWidth[c] ?? "11rem" }} />
+            ))}
+          </colgroup>
+          <thead className="sticky top-0 z-10">
+            <tr className="bg-background">
+              <th className="text-left px-2 py-2 text-xs font-medium text-text-secondary border-b border-tertiary/30 whitespace-nowrap">
+                #
+              </th>
+              <th className="text-left px-2 py-2 text-xs font-medium text-text-secondary border-b border-tertiary/30 whitespace-nowrap">
+                {/* actions */}
+              </th>
+              {columns.map((c) => (
+                <th
+                  key={c}
+                  className="text-left px-2 py-2 text-xs font-medium text-text-secondary border-b border-tertiary/30 whitespace-nowrap"
+                >
+                  {c}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {filteredRows.map(({ row, index }) => (
+              <tr key={index} className="group hover:bg-secondary/15">
+                <td className="px-2 py-2 align-middle text-xs text-text-secondary tabular-nums border-b border-tertiary/10 whitespace-nowrap">
+                  {index + 1}
+                </td>
+                <td className="px-1 py-2 align-middle border-b border-tertiary/10 whitespace-nowrap">
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => deleteRow(index)}
+                    className="text-xs text-text-secondary/50 group-hover:text-text-secondary hover:text-uga-red disabled:opacity-30 px-1"
+                  >
+                    Del
+                  </button>
+                </td>
+                {columns.map((c) => (
+                  <td key={c} className="p-0 align-middle border-b border-tertiary/10">
+                    <input
+                      value={row?.[c] ?? ""}
+                      disabled={busy}
+                      title={row?.[c] ?? ""}
+                      onChange={(e) => updateCell(index, c, e.target.value)}
+                      className={FIELD}
+                    />
+                  </td>
+                ))}
+              </tr>
+            ))}
+            {!filteredRows.length && (
+              <tr>
+                <td className="px-2 py-8 text-text-secondary" colSpan={Math.max(columns.length + 2, 3)}>
+                  {busy ? "Loading…" : "No matching rows."}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
     </PageContainer>
   );
 }
-

@@ -9,6 +9,8 @@ import FamilyTree from './pages/FamilyTree.jsx'
 import Rush from './pages/Rush.jsx'
 import Merch from './pages/Merch.jsx'
 import Brothers from './pages/Brothers.jsx'
+import Gallery from './pages/Gallery.jsx'
+import Philanthropy from './pages/Philanthropy.jsx'
 import AdminData from './pages/AdminData.jsx'
 
 function App() {
@@ -24,6 +26,8 @@ function App() {
         <Route path="rush" element={<Rush />} />
         <Route path="merch" element={<Merch />} />
         <Route path="brothers" element={<Brothers />} />
+        <Route path="gallery" element={<Gallery />} />
+        <Route path="philanthropy" element={<Philanthropy />} />
         <Route path="admin/data" element={<AdminData />} />
       </Routes>
     </Layout>

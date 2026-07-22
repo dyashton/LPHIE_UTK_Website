@@ -1,13 +1,13 @@
-date,title,description
-"Feburary 25, 1981",National Foundation,"The fraternity was founded nationally in 1981 at the University of California Los Angeles, establishing its core values and mission"
-"April 12, 2020",UT Associate Chapter Foundation,The associate chapter at the University of Tennessee was founded in 2020 with the 8 man Charter Command class
-"April 12, 2020",Charter Command Class,The Beta Kappa chapter was founded with the 8 Charter Command Class 
-"April 13, 2021",Alpha Avatar Class,The Beta Kappa chapter was expanded with the 1 man Alpha Avatar Class
-"November 13, 2021",Beta Bankai Class,The Beta Kappa chapter was expanded with the 4 man Beta Bankai Class
-"November 16, 2022",Gamma Ga Kill Class,The Beta Kappa chapter was expanded with the 5 man Gamma Ga Kill Class
-"April 16, 2023",Delta Doraemon Class,The Beta Kappa chapter was expanded with the 2 man Delta Doraemon Class
-"April 21, 2024",Epsilon Evangelion Class,The Beta Kappa chapter was expanded with the 4 man Epsilon Evangelion Class
-"November 16, 2024",Zeta Z-Fighter Class,The Beta Kappa chapter was expanded with the 3 man Zeta Z-Fighter Class
-"April 13, 2025",Eta Edgerunner Class,The Beta Kappa chapter was expanded with the 2 man Eta Edgerunner Class
-"June 16, 2025",Beta Kappa Chapter Foundation,"On June 13, the TN associate chapter presented for active lettered status. On June 16, the Tennessee Associate chapter was officially designated as the Beta Kappa chapter."
-"November 9, 2025",Theta Titan Class,The Beta Kappa chapter was expanded with the 10 man Theta Titan Class
+date,title,description,imageIndex
+"Feburary 25, 1981",National Foundation,"The fraternity was founded nationally in 1981 at the University of California Los Angeles, establishing its core values and mission",
+"April 12, 2020",UT Associate Chapter Foundation,"The associate chapter at the University of Tennessee was founded in 2020 with the 8 man Charter Command class",0
+"April 12, 2020",Charter Command Class,"The Beta Kappa chapter was founded with the 8 Charter Command Class",1
+"April 13, 2021",Alpha Avatar Class,"The Beta Kappa chapter was expanded with the 1 man Alpha Avatar Class",
+"November 13, 2021",Beta Bankai Class,"The Beta Kappa chapter was expanded with the 4 man Beta Bankai Class",2
+"November 16, 2022",Gamma Ga Kill Class,"The Beta Kappa chapter was expanded with the 5 man Gamma Ga Kill Class",
+"April 16, 2023",Delta Doraemon Class,"The Beta Kappa chapter was expanded with the 2 man Delta Doraemon Class",3
+"April 21, 2024",Epsilon Evangelion Class,"The Beta Kappa chapter was expanded with the 4 man Epsilon Evangelion Class",
+"November 16, 2024",Zeta Z-Fighter Class,"The Beta Kappa chapter was expanded with the 3 man Zeta Z-Fighter Class",4
+"April 13, 2025",Eta Edgerunner Class,"The Beta Kappa chapter was expanded with the 2 man Eta Edgerunner Class",
+"June 16, 2025",Beta Kappa Chapter Foundation,"On June 13, the TN associate chapter presented for active lettered status. On June 16, the Tennessee Associate chapter was officially designated as the Beta Kappa chapter.",5
+"November 9, 2025",Theta Titan Class,"The Beta Kappa chapter was expanded with the 10 man Theta Titan Class",6

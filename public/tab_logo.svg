@@ -1,12 +1,3 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Lambda Phi Epsilon">
-  <defs>
-    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
-      <stop offset="0" stop-color="#4169E1"/>
-      <stop offset="1" stop-color="#212121"/>
-    </linearGradient>
-  </defs>
-  <rect width="256" height="256" rx="56" fill="url(#g)"/>
-  <circle cx="128" cy="128" r="92" fill="rgba(33,33,33,0.45)" stroke="rgba(242,243,244,0.25)" stroke-width="4"/>
-  <text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle"
-        font-family="Cinzel, serif" font-size="92" font-weight="700" fill="#F2F3F4">›¦•</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Lambda Phi Epsilon">
+  <image href="tab_logo.png" width="512" height="512" preserveAspectRatio="xMidYMid slice"/>
 </svg>

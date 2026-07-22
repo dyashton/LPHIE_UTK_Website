@@ -1,4 +1,6 @@
 import Navbar from "./Navbar"
+import Footer from "./Footer"
+import CursorClouds from "./CursorClouds"
 import LPHIELogo from "../assets/logo.svg"
 
 export default function Layout({ children }) {
@@ -13,7 +15,10 @@ export default function Layout({ children }) {
                     backgroundSize: 'clamp(220px, 55vw, 520px)',
                     opacity: 0.12
                 }}
+                aria-hidden="true"
             />
+
+            <CursorClouds />
 
             <header className="absolute top-0 left-0 right-0 z-50 w-full">
                 <Navbar />
@@ -21,6 +26,7 @@ export default function Layout({ children }) {
             <div className="relative z-10 flex-1 min-w-0 overflow-x-hidden">
                 {children}
             </div>
+            <Footer />
         </div>
     )
 }

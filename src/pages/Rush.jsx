@@ -3,14 +3,14 @@ import { useState, useContext, useEffect } from "react"
 import { BrothersContext } from "../providers/BrothersContext"
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
 import Papa from "papaparse";
+import { Link } from "react-router-dom"
 import PageContainer from "../components/PageContainer"
+import InstagramStrip from "../components/InstagramStrip"
+import Reveal from "../components/Reveal"
 
 const MotionDiv = motion.div;
 
 function displayRushEvents(events) {
-    if (!events || events.length === 0) {
-        return <p className="text-lg sm:text-2xl font-cinzel">Rush has ended for this semester. Please check back later or contact us <a href="https://www.instagram.com/utklphie/" target="blank" className="text-accent cursor-pointer">@utklphie</a></p>;
-    }
     return events.map((event, index) => (
         <div key={index} className="rush-event mb-8 relative">
             <h3 className="text-lg sm:text-2xl font-bold">{event.date} - {event.title}</h3>
@@ -19,28 +19,84 @@ function displayRushEvents(events) {
     ));
 }
 
+function OffSeasonStory() {
+    return (
+        <div className="space-y-6">
+            <p className="text-lg sm:text-2xl font-cinzel text-text-primary">
+                Rush has ended for this semester.
+            </p>
+            <p className="text-base sm:text-lg text-text-secondary max-w-2xl">
+                Between cycles, stay close to the brotherhood — meet our brothers, explore chapter history, and follow along for the next rush.
+            </p>
+            <ul className="space-y-3 text-lg">
+                <li>
+                    <Link to="/brothers" className="text-accent underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
+                        Meet the Brothers
+                    </Link>
+                </li>
+                <li>
+                    <Link to="/about" className="text-accent underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
+                        About Beta Kappa
+                    </Link>
+                </li>
+                <li>
+                    <Link to="/gallery" className="text-accent underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
+                        Gallery
+                    </Link>
+                </li>
+                <li>
+                    <Link to="/contact" className="text-accent underline underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
+                        Interest form / Contact
+                    </Link>
+                </li>
+            </ul>
+            <p className="text-text-secondary">
+                Questions? Reach us on Instagram{" "}
+                <a
+                    href="https://www.instagram.com/utklphie/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent underline underline-offset-4"
+                >
+                    @lphie_utk
+                </a>
+                .
+            </p>
+        </div>
+    );
+}
+
 export default function Rush() {
     const [imgIndex, setImgIndex] = useState(0);
     const [upcomingRushEvents, setUpcomingRushEvents] = useState([]);
-    const { rushImages } = useContext(BrothersContext);
+    const [status, setStatus] = useState("loading");
+    const { rushImages, galleryImages } = useContext(BrothersContext);
     const reducedMotion = useReducedMotion();
 
     useEffect(() => {
         let cancelled = false;
 
         async function load() {
-            const res = await fetch("/api/datasets/rush");
-            const payload = await res.json();
-            const results = Papa.parse(payload.csvText, { header: true, skipEmptyLines: true });
-            const events = results.data.map((item) => ({
-                date: item.date,
-                title: item.title,
-                description: item.description,
-            }));
-            if (!cancelled) setUpcomingRushEvents(events);
+            try {
+                const res = await fetch("/api/datasets/rush");
+                if (!res.ok) throw new Error("rush");
+                const payload = await res.json();
+                const results = Papa.parse(payload.csvText, { header: true, skipEmptyLines: true });
+                const events = results.data.map((item) => ({
+                    date: item.date,
+                    title: item.title,
+                    description: item.description,
+                }));
+                if (!cancelled) {
+                    setUpcomingRushEvents(events);
+                    setStatus("ok");
+                }
+            } catch {
+                if (!cancelled) setStatus("error");
+            }
         }
 
-        load().catch((err) => console.error(err));
+        load();
         return () => { cancelled = true; };
     }, []);
 
@@ -49,17 +105,18 @@ export default function Rush() {
         if (!Array.isArray(rushImages) || rushImages.length <= 1) return;
         const interval = setInterval(() => {
             setImgIndex((prevIndex) => (prevIndex + 1) % rushImages.length);
-        }, 5000); // Change image every 10 seconds
+        }, 5000);
 
         return () => clearInterval(interval);
     }, [rushImages, reducedMotion]);
 
     const heroImageUrl = Array.isArray(rushImages) && rushImages.length ? rushImages[imgIndex % rushImages.length] : null;
+    const offSeason = status === "ok" && upcomingRushEvents.length === 0;
+    const cultureStrip = (galleryImages || []).slice(0, 4);
+
     return (
         <div className="w-full min-h-dvh relative bg-background">
-            {/* Hero: tall enough for imagery; bottom scrim blends into overlapping panel */}
             <div className="relative w-full h-[min(72vh,820px)] sm:h-[min(78vh,900px)] min-h-[22rem] overflow-hidden">
-                {/* Base wash when no photo or under photo */}
                 <div className="absolute inset-0 bg-linear-to-b from-primary via-background to-background" />
                 {heroImageUrl && !reducedMotion ? (
                     <AnimatePresence mode="wait">
@@ -79,7 +136,6 @@ export default function Rush() {
                         style={{ backgroundImage: `url(${heroImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center top' }}
                     />
                 ) : null}
-                {/* Readability + blend into page */}
                 <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-primary/40 via-transparent to-background" />
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 sm:h-48 bg-linear-to-t from-background via-background/80 to-transparent" />
 
@@ -88,12 +144,34 @@ export default function Rush() {
                 </PageContainer>
             </div>
 
-            {/* Overlaps hero: card sits on top of the background */}
             <PageContainer className="relative z-30 -mt-14 sm:-mt-20 md:-mt-24 pb-16">
-                <Title as="h2" className="!text-2xl sm:!text-4xl lg:!text-5xl" text="Upcoming Rush Events" />
+                <Title as="h2" className="!text-2xl sm:!text-4xl lg:!text-5xl" text={offSeason ? "Between Rush Cycles" : "Upcoming Rush Events"} />
                 <div className="rush-events mt-5 sm:mt-7">
-                    {displayRushEvents(upcomingRushEvents)}
+                    {status === "loading" && <p className="text-text-secondary">Loading rush events…</p>}
+                    {status === "error" && <p className="text-text-secondary">Couldn’t load rush events.</p>}
+                    {status === "ok" && offSeason && <OffSeasonStory />}
+                    {status === "ok" && !offSeason && displayRushEvents(upcomingRushEvents)}
                 </div>
+
+                {offSeason && cultureStrip.length > 0 && (
+                    <Reveal className="mt-12">
+                        <h3 className="font-cinzel text-2xl text-accent mb-4">Chapter culture</h3>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            {cultureStrip.map((url) => (
+                                <div key={url} className="aspect-square overflow-hidden bg-primary">
+                                    <img src={url} alt="" className="h-full w-full object-cover" loading="lazy" />
+                                </div>
+                            ))}
+                        </div>
+                        <Link to="/gallery" className="mt-4 inline-block text-accent underline underline-offset-4">
+                            Full gallery →
+                        </Link>
+                    </Reveal>
+                )}
+
+                <Reveal className="mt-12">
+                    <InstagramStrip />
+                </Reveal>
             </PageContainer>
         </div>
     )
