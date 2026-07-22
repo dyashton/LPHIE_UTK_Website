@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Keep the admin editor out of search results
+Disallow: /admin/
+
+Sitemap: https://lphie-utk-website.pages.dev/sitemap.xml
