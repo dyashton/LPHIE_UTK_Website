@@ -108,9 +108,7 @@ function DeveloperEgg({ brother, imgSrc, onClose, jumpToBrother }) {
                 transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
                 onClick={(e) => e.stopPropagation()}
             >
-                <p className="font-mono text-xs tracking-[0.35em] text-accent uppercase">
-                    root@lphie-utk:~$ whoami
-                </p>
+                
                 {imgSrc ? (
                     <img
                         src={imgSrc}
@@ -137,10 +135,7 @@ function DeveloperEgg({ brother, imgSrc, onClose, jumpToBrother }) {
                 >
                     &gt; SITE_DEVELOPER
                 </MotionDiv>
-                <p className="max-w-sm font-mono text-sm leading-relaxed text-text-secondary">
-                    I built this website. Every pixel, every scroll, every brother card —
-                    including this one.
-                </p>
+                
 
                 <div className="mt-2 flex w-full flex-col gap-3 border-t border-accent/30 pt-4">
                     {field("Major", <>{brother.major}{brother.minor ? ` · Minor: ${brother.minor}` : ""}</>)}
