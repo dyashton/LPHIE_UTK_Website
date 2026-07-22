@@ -7,7 +7,7 @@ import { BrothersContext } from "../providers/BrothersContext"
 const MotionDiv = motion.div;
 const MotionImg = motion.img;
 
-const DESKTOP_CARD_REM = 18;
+const DESKTOP_CARD_REM = 14;
 const DESKTOP_DETAILS_REM = 24;
 const MOBILE_CARD_REM = 7;
 const MOBILE_DETAILS_REM = 9;
@@ -213,15 +213,15 @@ function DeveloperEgg({ brother, imgSrc, onClose, jumpToBrother }) {
 
 function renderBigOrLittle(brothers, jumpToBrother) {
     if (!brothers?.length) {
-        return <div className="font-normal pl-3 sm:pl-4 text-text-secondary">—</div>;
+        return <div className="font-normal pl-3 sm:pl-6 text-text-secondary">—</div>;
     }
-    return <ul className="pl-3 sm:pl-4">
+    return <ul className="pl-3 sm:pl-6">
         {brothers.map((brother) => {
             return <li key={brother.getFullName()} onClick={(e) => {
                 e.stopPropagation();
                 jumpToBrother(brother)
             }}  
-                className="flex flex-row flex-wrap gap-x-[0.4ch] font-normal leading-tight">
+                className="flex flex-row flex-wrap gap-x-[0.4ch] sm:gap-x-[1ch] font-normal leading-tight sm:leading-snug">
                 <p>{brother.firstName}</p>
                 <p className="text-accent text-nowrap font-cinzel">"{brother.lineName}"</p>
                 <p>{brother.lastName}</p>
@@ -231,7 +231,7 @@ function renderBigOrLittle(brothers, jumpToBrother) {
 }
 
 function renderHobbies(hobbies) {
-    return <div className="font-normal pl-3 sm:pl-4 leading-tight">
+    return <div className="font-normal pl-3 sm:pl-6 leading-tight sm:leading-snug">
         {hobbies.join(", ")}
     </div>
 }
@@ -273,7 +273,7 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
     const detailsPx = detailsRem * 16;
     // ponytail: full class strings so Tailwind JIT sees them
     const portraitW = isMobile ? "w-[7rem]" : "w-[14rem]";
-    const detailsW = isMobile ? "w-[9rem]" : "w-[16rem]";
+    const detailsW = isMobile ? "w-[9rem]" : "w-[24rem]";
     const heightClass = isMobile ? "h-40" : "h-80";
 
     useEffect(() => {
@@ -331,10 +331,10 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                     className={`rounded-xl ${portraitW} h-full absolute top-0 ${portraitSide}`}
                 >
                     <div className="absolute w-full h-8 sm:h-10 top-0 left-0 bg-linear-to-b from-[rgba(33,33,33,1.5)] to-[rgba(0,0,0,0)] z-5">
-                        <div className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 text-sm sm:text-lg text-text-primary outlined-text font-cinzel font-bold select-none pointer-events-none z-5">
+                        <div className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 text-sm sm:text-xl text-text-primary outlined-text font-cinzel font-bold select-none pointer-events-none z-5">
                             {brother.lineNumber}
                         </div>
-                        <div className="absolute top-1 left-1 sm:top-1.5 sm:left-1.5 w-3/4 text-[0.55rem] sm:text-xs text-text-primary font-cinzel font-bold select-none pointer-events-none z-5">
+                        <div className="absolute top-1 left-1 sm:top-1.5 sm:left-1.5 w-3/4 text-[0.6rem] sm:text-sm text-text-primary font-cinzel font-bold select-none pointer-events-none z-5">
                             {brother.position}
                         </div>
                     </div>
@@ -355,15 +355,15 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                             </div>
                         </div>
                     )}
-                    <div className="relative z-10 h-full flex flex-col items-center justify-end px-1 sm:px-2 bg-linear-to-b from-[rgba(0,0,0,0)] to-[rgba(33,33,33,1.5)] text-text-primary pb-1.5 sm:pb-3">
-                        <div className="brother-position text-[0.55rem] sm:text-xs font-medium w-full leading-tight">{firstName}{" "}
+                    <div className="relative z-10 h-full flex flex-col items-center justify-end px-1 sm:px-3 bg-linear-to-b from-[rgba(0,0,0,0)] to-[rgba(33,33,33,1.5)] text-text-primary pb-1.5 sm:pb-3">
+                        <div className="brother-position text-[0.65rem] sm:text-sm font-medium w-full leading-tight sm:leading-snug">{firstName}{" "}
                             <span className="text-accent font-cinzel">"{brother.lineName}"</span>{" "}
                             {lastName}</div>
-                        <p className="brother-details text-[0.5rem] sm:text-[0.7rem] w-full leading-tight">{brother.major}</p>
-                        <h2 className="brother-name text-[0.5rem] sm:text-[0.7rem] w-full leading-tight">
+                        <p className="brother-details text-[0.55rem] sm:text-xs w-full leading-tight">{brother.major}</p>
+                        <h2 className="brother-name text-[0.55rem] sm:text-xs w-full leading-tight">
                             {brother.family} Family
                         </h2>
-                        <p className="brother-details text-[0.5rem] sm:text-[0.7rem] w-full leading-tight">{brother.classYear}</p>
+                        <p className="brother-details text-[0.55rem] sm:text-xs w-full leading-tight">{brother.classYear}</p>
                     </div>
                 </MotionDiv>
 
@@ -371,7 +371,7 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                     {isExtended && (
                         <MotionDiv
                             key="back"
-                            className={`absolute top-0 ${detailsSide} rounded-xl text-[0.5rem] sm:text-[0.7rem] font-medium flex flex-col items-center justify-start ${detailsW} h-full pt-1 px-1.5 sm:px-2.5 pb-2 gap-1 sm:gap-1.5 overflow-y-auto leading-tight`}
+                            className={`absolute top-0 ${detailsSide} rounded-xl text-[0.5rem] sm:text-sm font-medium flex flex-col items-center justify-start ${detailsW} h-full pt-1 sm:pt-3 px-1.5 sm:px-4 pb-2 sm:pb-4 gap-1 sm:gap-3 overflow-y-auto leading-tight sm:leading-snug`}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -387,13 +387,13 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                             </div>
                             <div className="crossing-class w-full">
                                 <p>Crossing Class: </p>
-                                <div className="font-cinzel text-accent text-[0.6rem] sm:text-xs pl-3 sm:pl-4">
+                                <div className="font-cinzel text-accent text-[0.6rem] sm:text-lg pl-3 sm:pl-6">
                                     {brother.getCrossingClass()}
                                 </div>
                             </div>
                             <div className="brother-hometown w-full">
                                 <p>Hometown: </p>
-                                <div className="font-normal pl-3 sm:pl-4">
+                                <div className="font-normal pl-3 sm:pl-6">
                                     {brother.hometown}
                                 </div>
                             </div>
