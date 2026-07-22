@@ -1,52 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://lphie-utk-website.pages.dev/</loc>
+    <loc>https://utklphie.org/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://lphie-utk-website.pages.dev/about</loc>
+    <loc>https://utklphie.org/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://lphie-utk-website.pages.dev/brothers</loc>
+    <loc>https://utklphie.org/brothers</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://lphie-utk-website.pages.dev/rush</loc>
+    <loc>https://utklphie.org/rush</loc>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://lphie-utk-website.pages.dev/chapter-timeline</loc>
+    <loc>https://utklphie.org/chapter-timeline</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lphie-utk-website.pages.dev/family-tree</loc>
+    <loc>https://utklphie.org/family-tree</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://lphie-utk-website.pages.dev/gallery</loc>
+    <loc>https://utklphie.org/gallery</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lphie-utk-website.pages.dev/philanthropy</loc>
+    <loc>https://utklphie.org/philanthropy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://lphie-utk-website.pages.dev/merch</loc>
+    <loc>https://utklphie.org/merch</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://lphie-utk-website.pages.dev/contact</loc>
+    <loc>https://utklphie.org/contact</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
