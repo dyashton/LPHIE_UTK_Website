@@ -7,13 +7,26 @@ import { BrothersContext } from "../providers/BrothersContext"
 const MotionDiv = motion.div;
 const MotionImg = motion.img;
 
-const CARD_WIDTH_REM = 14;
-const DETAILS_WIDTH_REM = 24;
-const EXPANDED_WIDTH_REM = CARD_WIDTH_REM + DETAILS_WIDTH_REM;
-const DETAILS_WIDTH_PX = DETAILS_WIDTH_REM * 16;
+const DESKTOP_CARD_REM = 14;
+const DESKTOP_DETAILS_REM = 24;
+const MOBILE_CARD_REM = 10;
+const MOBILE_DETAILS_REM = 16;
 
 // ponytail: easter egg keyed to CSV lineName — bump if Ashton ever renames
 const DEVELOPER_LINE_NAME = "AvaLoN";
+
+function useIsMobileCard() {
+    const [mobile, setMobile] = useState(() =>
+        typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches,
+    );
+    useEffect(() => {
+        const mq = window.matchMedia("(max-width: 639px)");
+        const onChange = () => setMobile(mq.matches);
+        mq.addEventListener("change", onChange);
+        return () => mq.removeEventListener("change", onChange);
+    }, []);
+    return mobile;
+}
 
 function MatrixRain() {
     const canvasRef = useRef(null);
@@ -243,7 +256,7 @@ const fadeMaskRight = {
     },
 };
 
-function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExtendedBrother, onDeveloperOpen }) {
+function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExtendedBrother, onDeveloperOpen, isMobile }) {
     const firstName = brother.firstName
     const lastName = brother.lastName;
     const imgSrc = images?.[brother.lineName] || null;
@@ -252,16 +265,23 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
     const footprintRef = useRef(null);
     // Prefer expanding left (details on left); flip right when there isn't room.
     const [expandRight, setExpandRight] = useState(false);
+    const cardRem = isMobile ? MOBILE_CARD_REM : DESKTOP_CARD_REM;
+    const detailsRem = isMobile ? MOBILE_DETAILS_REM : DESKTOP_DETAILS_REM;
+    const detailsPx = detailsRem * 16;
+    // ponytail: full class strings so Tailwind JIT sees them
+    const portraitW = isMobile ? "w-[10rem]" : "w-[14rem]";
+    const detailsW = isMobile ? "w-[16rem]" : "w-[24rem]";
+    const heightClass = isMobile ? "h-56" : "h-80";
 
     useEffect(() => {
         if (!isExtended) return;
         const t = setTimeout(() => {
             const rect = footprintRef.current?.getBoundingClientRect();
             if (!rect) return;
-            setExpandRight(rect.left < DETAILS_WIDTH_PX + 16);
+            setExpandRight(rect.left < detailsPx + 16);
         }, 0);
         return () => clearTimeout(t);
-    }, [isExtended]);
+    }, [isExtended, detailsPx]);
 
     const portraitSide = expandRight ? "left-0" : "right-0";
     const detailsSide = expandRight ? "right-0" : "left-0";
@@ -273,13 +293,13 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
         <div
             ref={footprintRef}
             id={brother.lineName}
-            className="relative w-[14rem] h-80 shrink-0"
+            className={`relative ${portraitW} ${heightClass} shrink-0`}
         >
             <MotionDiv
-                className={`brother-card absolute top-0 ${cardAnchor} h-80 bg-primary border-accent border-2 rounded-md overflow-hidden cursor-pointer ${isExtended ? "z-30" : "z-10 hover:z-20"}`}
+                className={`brother-card absolute top-0 ${cardAnchor} ${heightClass} bg-primary border-accent border-2 rounded-md overflow-hidden cursor-pointer ${isExtended ? "z-30" : "z-10 hover:z-20"}`}
                 initial={false}
                 animate={{
-                    width: isExtended ? `${EXPANDED_WIDTH_REM}rem` : `${CARD_WIDTH_REM}rem`,
+                    width: isExtended ? `${cardRem + detailsRem}rem` : `${cardRem}rem`,
                 }}
                 transition={{ duration: 0.5, ease: "easeInOut" }}
                 onClick={() => {
@@ -295,7 +315,7 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                         return;
                     }
                     const rect = footprintRef.current?.getBoundingClientRect();
-                    setExpandRight(rect ? rect.left < DETAILS_WIDTH_PX + 16 : false);
+                    setExpandRight(rect ? rect.left < detailsPx + 16 : false);
                     setExtendedBrother(brother.lineName);
                     window.history.replaceState(null, "", `#${encodeURIComponent(brother.lineName)}`);
                 }}
@@ -303,13 +323,13 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
             >
                 <MotionDiv
                     key="front"
-                    className={`rounded-xl w-[14rem] h-full absolute top-0 ${portraitSide}`}
+                    className={`rounded-xl ${portraitW} h-full absolute top-0 ${portraitSide}`}
                 >
-                    <div className="absolute w-full h-12 top-0 left-0 bg-linear-to-b from-[rgba(33,33,33,1.5)] to-[rgba(0,0,0,0)] z-5">
-                        <div className="absolute top-2 right-2 text-2xl text-text-primary outlined-text font-cinzel font-bold select-none pointer-events-none z-5">
+                    <div className="absolute w-full h-10 sm:h-12 top-0 left-0 bg-linear-to-b from-[rgba(33,33,33,1.5)] to-[rgba(0,0,0,0)] z-5">
+                        <div className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 text-xl sm:text-2xl text-text-primary outlined-text font-cinzel font-bold select-none pointer-events-none z-5">
                             {brother.lineNumber}
                         </div>
-                        <div className="absolute top-2 left-2 w-3/4 text-base text-text-primary  font-cinzel font-bold select-none pointer-events-none z-5">
+                        <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 w-3/4 text-sm sm:text-base text-text-primary font-cinzel font-bold select-none pointer-events-none z-5">
                             {brother.position}
                         </div>
                     </div>
@@ -317,28 +337,28 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                         <MotionImg
                             src={imgSrc}
                             alt={brother.getFullName()}
-                            className={`brother-image absolute top-0 ${portraitSide} w-[14rem] h-full object-cover`}
+                            className={`brother-image absolute top-0 ${portraitSide} ${portraitW} h-full object-cover`}
                             variants={fadeMask}
                             initial={false}
                             animate={isExtended ? "visible" : "hidden"}
                             transition={{ duration: 0.6, ease: "easeOut" }}
                         />
                     ) : (
-                        <div className={`absolute top-0 ${portraitSide} w-[14rem] h-full bg-linear-to-b from-secondary/40 via-primary to-primary flex items-center justify-center`}>
-                            <div className="text-4xl font-cinzel text-text-primary/70 select-none">
+                        <div className={`absolute top-0 ${portraitSide} ${portraitW} h-full bg-linear-to-b from-secondary/40 via-primary to-primary flex items-center justify-center`}>
+                            <div className="text-3xl sm:text-4xl font-cinzel text-text-primary/70 select-none">
                                 {(firstName?.[0] || "").toUpperCase()}{(lastName?.[0] || "").toUpperCase()}
                             </div>
                         </div>
                     )}
-                    <div className="relative z-10 h-full flex flex-col items-center justify-end px-3 bg-linear-to-b from-[rgba(0,0,0,0)] to-[rgba(33,33,33,1.5)] text-text-primary pb-4">
-                        <div className="brother-position text-base font-medium w-full leading-snug">{firstName}{" "}
+                    <div className="relative z-10 h-full flex flex-col items-center justify-end px-2 sm:px-3 bg-linear-to-b from-[rgba(0,0,0,0)] to-[rgba(33,33,33,1.5)] text-text-primary pb-3 sm:pb-4">
+                        <div className="brother-position text-sm sm:text-base font-medium w-full leading-snug">{firstName}{" "}
                             <span className="text-accent font-cinzel">"{brother.lineName}"</span>{" "}
                             {lastName}</div>
-                        <p className="brother-details text-sm w-full">{brother.major}</p>
-                        <h2 className="brother-name text-sm w-full">
+                        <p className="brother-details text-xs sm:text-sm w-full">{brother.major}</p>
+                        <h2 className="brother-name text-xs sm:text-sm w-full">
                             {brother.family} Family
                         </h2>
-                        <p className="brother-details text-sm w-full">{brother.classYear}</p>
+                        <p className="brother-details text-xs sm:text-sm w-full">{brother.classYear}</p>
                     </div>
                 </MotionDiv>
 
@@ -346,7 +366,7 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                     {isExtended && (
                         <MotionDiv
                             key="back"
-                            className={`absolute top-0 ${detailsSide} rounded-xl text-sm font-medium flex flex-col items-center justify-start w-[24rem] h-full pt-2 px-4 pb-4 gap-3 overflow-y-auto`}
+                            className={`absolute top-0 ${detailsSide} rounded-xl text-xs sm:text-sm font-medium flex flex-col items-center justify-start ${detailsW} h-full pt-2 px-3 sm:px-4 pb-4 gap-2 sm:gap-3 overflow-y-auto`}
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -396,12 +416,12 @@ const CLASS_SECTIONS = [
     { key: "Theta", title: "Theta Titan Class" },
 ]
 
-function BrotherSection({ title, list, images, jumpToBrother, extendedBrother, setExtendedBrother, onDeveloperOpen }) {
+function BrotherSection({ title, list, images, jumpToBrother, extendedBrother, setExtendedBrother, onDeveloperOpen, isMobile }) {
     if (!list.length) return null
     return (
         <div className="w-full h-fit mt-12">
             <Title as="h2" text={title} />
-            <div className="w-full h-full flex flex-wrap justify-start items-start gap-8 pt-8 overflow-visible">
+            <div className="w-full h-full flex flex-wrap justify-start items-start gap-4 sm:gap-8 pt-6 sm:pt-8 overflow-visible">
                 {list.map((brother) => (
                     <BrotherCard
                         key={brother.getFullName()}
@@ -411,6 +431,7 @@ function BrotherSection({ title, list, images, jumpToBrother, extendedBrother, s
                         extendedBrother={extendedBrother}
                         setExtendedBrother={setExtendedBrother}
                         onDeveloperOpen={onDeveloperOpen}
+                        isMobile={isMobile}
                     />
                 ))}
             </div>
@@ -422,6 +443,7 @@ export default function Brothers() {
     const { brothers, images, loading, error } = useContext(BrothersContext);
     const [extendedBrother, setExtendedBrother] = useState(null);
     const [developerBrother, setDeveloperBrother] = useState(null);
+    const isMobile = useIsMobileCard();
     const [search, setSearch] = useState("");
     const [familyFilter, setFamilyFilter] = useState(() => {
         try {
@@ -517,6 +539,7 @@ export default function Brothers() {
         extendedBrother,
         setExtendedBrother,
         onDeveloperOpen: setDeveloperBrother,
+        isMobile,
     };
 
     return (
