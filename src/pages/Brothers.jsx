@@ -7,8 +7,8 @@ import { BrothersContext } from "../providers/BrothersContext"
 const MotionDiv = motion.div;
 const MotionImg = motion.img;
 
-const DESKTOP_CARD_REM = 14;
-const DESKTOP_DETAILS_REM = 16;
+const DESKTOP_CARD_REM = 18;
+const DESKTOP_DETAILS_REM = 24;
 const MOBILE_CARD_REM = 7;
 const MOBILE_DETAILS_REM = 9;
 
