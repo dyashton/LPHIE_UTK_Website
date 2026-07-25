@@ -124,3 +124,147 @@ html {
   animation: cloud-cursor-puff 1.8s ease-out forwards;
   will-change: transform, opacity;
 }
+
+/* Family tree: generation cascade + edge dash + focus pulse */
+@keyframes family-tree-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes family-tree-dash {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+@keyframes family-tree-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.family-tree-node-reveal {
+  /* backwards only: after animation, Tailwind opacity (dim) wins */
+  animation: family-tree-reveal 0.45s ease-out backwards;
+}
+
+.family-tree-node-pulse {
+  animation: family-tree-pulse 0.9s ease-in-out 2;
+}
+
+.react-flow__edge.family-tree-edge-hl path {
+  stroke-dasharray: 8 6;
+  animation: family-tree-dash 0.7s linear infinite;
+}
+
+/* Elevate hovered brother so the rich card paints above neighbors */
+.react-flow__node {
+  overflow: visible !important;
+}
+
+.react-flow__nodes {
+  overflow: visible !important;
+}
+
+.react-flow__node:hover,
+.react-flow__node.selected {
+  z-index: 1000 !important;
+}
+
+.react-flow__node-familyTreeNode {
+  overflow: visible !important;
+}
+
+/* Nav accent: one full-height gradient; wave mask only cuts the bottom edge (no seam) */
+.nav-accent {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.nav-accent__layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.nav-accent__track {
+  position: absolute;
+  inset: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--accent-color) 70%, transparent) 0%,
+    color-mix(in srgb, var(--accent-color) 25%, transparent) 50%,
+    transparent 100%
+  );
+  /*
+    Composite mask: solid rect for everything above the wave band + wavy bottom.
+    Both pieces share the same paint, so there's no horizontal join line.
+  */
+  -webkit-mask-image:
+    linear-gradient(#000 0%, #000 calc(100% - 56px), transparent calc(100% - 56px)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 56' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0 0H240V28C200 4 160 4 120 28S40 52 0 28Z M240 0H480V28C440 4 400 4 360 28S280 52 240 28Z'/%3E%3C/svg%3E");
+  mask-image:
+    linear-gradient(#000 0%, #000 calc(100% - 56px), transparent calc(100% - 56px)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 56' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0 0H240V28C200 4 160 4 120 28S40 52 0 28Z M240 0H480V28C440 4 400 4 360 28S280 52 240 28Z'/%3E%3C/svg%3E");
+  -webkit-mask-size: 100% 100%, 100% 56px;
+  mask-size: 100% 100%, 100% 56px;
+  -webkit-mask-position: 0 0, 0 100%;
+  mask-position: 0 0, 0 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-composite: source-over;
+  mask-composite: add;
+  will-change: transform;
+}
+
+.nav-accent__layer--back {
+  opacity: 0.45;
+}
+
+.nav-accent__layer--back .nav-accent__track {
+  -webkit-mask-image:
+    linear-gradient(#000 0%, #000 calc(100% - 56px), transparent calc(100% - 56px)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 56' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0 0H240V30C205 6 155 6 120 30S35 54 0 30Z M240 0H480V30C445 6 395 6 360 30S275 54 240 30Z'/%3E%3C/svg%3E");
+  mask-image:
+    linear-gradient(#000 0%, #000 calc(100% - 56px), transparent calc(100% - 56px)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 56' preserveAspectRatio='none'%3E%3Cpath fill='%23fff' d='M0 0H240V30C205 6 155 6 120 30S35 54 0 30Z M240 0H480V30C445 6 395 6 360 30S275 54 240 30Z'/%3E%3C/svg%3E");
+  animation: nav-wave-flow 8s linear infinite;
+}
+
+.nav-accent__layer--front {
+  opacity: 0.85;
+}
+
+.nav-accent__layer--front .nav-accent__track {
+  animation: nav-wave-flow 5.5s linear infinite reverse;
+}
+
+@keyframes nav-wave-flow {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-accent__track {
+    animation: none !important;
+  }
+}

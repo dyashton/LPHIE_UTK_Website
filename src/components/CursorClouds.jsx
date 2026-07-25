@@ -13,7 +13,7 @@ const CLOUDS = [cloud01, cloud02, cloud03, cloud04, cloud05, cloud06, cloud07]
 const DRIFT_X = [-56, -56, -56, -56, 56, 56, 56]
 
 /** Pixels of mouse travel between each ordered cloud spawn. */
-const SPAWN_DISTANCE = 90
+const SPAWN_DISTANCE = 200
 
 /**
  * Spawns ordered cloud sprites along the cursor path based on travel distance.

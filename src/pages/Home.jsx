@@ -1,5 +1,5 @@
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion"
-import { useState, useEffect, useContext, useMemo } from "react"
+import { useState, useEffect, useContext, useMemo, useRef } from "react"
 import { Link } from "react-router-dom"
 import { ChevronDown } from "lucide-react"
 import Papa from "papaparse"
@@ -10,6 +10,62 @@ import InstagramStrip from "../components/InstagramStrip"
 
 const MotionDiv = motion.div
 const MotionH1 = motion.h1
+
+// ponytail: rAF scrollLeft marquee; pause on hover/interact so users can drag/wheel freely
+function useBrotherhoodAutoScroll(enabled) {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    if (!enabled) return
+    const el = ref.current
+    if (!el) return
+
+    let raf = 0
+    let hovering = false
+    let pausedUntil = 0
+    const pause = () => {
+      pausedUntil = performance.now() + 3000
+    }
+    const onEnter = () => {
+      hovering = true
+    }
+    const onLeave = () => {
+      hovering = false
+    }
+    // Duplicate list → wrap at halfway for a seamless loop (also while dragging)
+    const onScroll = () => {
+      const half = el.scrollWidth / 2
+      if (half > 0 && el.scrollLeft >= half) el.scrollLeft -= half
+    }
+
+    el.addEventListener("pointerenter", onEnter)
+    el.addEventListener("pointerleave", onLeave)
+    el.addEventListener("pointerdown", pause)
+    el.addEventListener("wheel", pause, { passive: true })
+    el.addEventListener("touchstart", pause, { passive: true })
+    el.addEventListener("scroll", onScroll, { passive: true })
+
+    const tick = () => {
+      if (!hovering && performance.now() >= pausedUntil) {
+        el.scrollLeft += 0.35
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+
+    return () => {
+      cancelAnimationFrame(raf)
+      el.removeEventListener("pointerenter", onEnter)
+      el.removeEventListener("pointerleave", onLeave)
+      el.removeEventListener("pointerdown", pause)
+      el.removeEventListener("wheel", pause)
+      el.removeEventListener("touchstart", pause)
+      el.removeEventListener("scroll", onScroll)
+    }
+  }, [enabled])
+
+  return ref
+}
 
 function useTimelineEvents() {
   const [events, setEvents] = useState([])
@@ -110,6 +166,10 @@ export default function Home() {
       : null
 
   const previewGallery = (galleryImages || []).slice(0, 6)
+  const stripRef = useBrotherhoodAutoScroll(!reducedMotion && portraitBrothers.length > 0)
+  const stripItems = reducedMotion
+    ? portraitBrothers
+    : [...portraitBrothers, ...portraitBrothers]
 
   return (
     <div className="w-full relative pb-0">
@@ -242,13 +302,13 @@ export default function Home() {
               View all brothers →
             </Link>
           </div>
-          <div className="mt-8 flex gap-3 overflow-x-auto pb-2">
+          <div ref={stripRef} className="mt-8 flex gap-3 overflow-x-auto pb-2">
             {portraitBrothers.length === 0 && (
               <p className="text-text-secondary">{loading ? "Loading brothers…" : "Portraits coming soon."}</p>
             )}
-            {portraitBrothers.map((b) => (
+            {stripItems.map((b, i) => (
               <Link
-                key={b.lineName}
+                key={`${b.lineName}-${i}`}
                 to={`/brothers#${encodeURIComponent(b.lineName)}`}
                 className="shrink-0 w-28 sm:w-36 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
               >

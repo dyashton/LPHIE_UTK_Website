@@ -75,12 +75,22 @@ export default function Navbar() {
     }, [desktopDropdownOpen])
 
     return (
-        <nav className="bg-linear-to-b from-accent to-transparent text-white flex items-start justify-between px-4 py-4 sm:px-8 sm:py-6 relative">
-            <Link to="/" onClick={() => setMobileOpen(false)}>
+        <nav className="relative text-white flex items-start justify-between px-4 pt-4 pb-10 sm:px-8 sm:pt-6 sm:pb-12">
+            {/* One continuous accent→transparent wash; wave only shapes the bottom edge */}
+            <div className="nav-accent" aria-hidden="true">
+                <div className="nav-accent__layer nav-accent__layer--back">
+                    <div className="nav-accent__track" />
+                </div>
+                <div className="nav-accent__layer nav-accent__layer--front">
+                    <div className="nav-accent__track" />
+                </div>
+            </div>
+
+            <Link to="/" className="relative z-10" onClick={() => setMobileOpen(false)}>
                 <span className="text-3xl sm:text-5xl font-cinzel leading-none" aria-label="Lambda Phi Epsilon">ΛΦΕ</span>
             </Link>
 
-            <ul className="hidden md:flex items-center gap-5 lg:gap-8 text-base lg:text-xl xl:text-2xl flex-wrap justify-end">
+            <ul className="relative z-10 hidden md:flex items-center gap-5 lg:gap-8 text-base lg:text-xl xl:text-2xl flex-wrap justify-end">
                 {desktopItems.map((item) => (
                     <li key={item.path}>
                         <NavLink to={item.path} className={navLinkClassName}>
@@ -105,7 +115,7 @@ export default function Navbar() {
                         <div
                             id={desktopDropdownId}
                             role="menu"
-                            className="absolute top-full right-0 mt-2 w-fit h-fit p-4 bg-primary border-accent border-2 rounded-md shadow-lg"
+                            className="absolute top-full right-0 mt-2 w-fit h-fit p-4 bg-primary border-accent border-2 rounded-md shadow-lg z-20"
                         >
                             <ul className="flex flex-col space-y-2">
                                 {dropdownItems.map((item) => (
@@ -129,7 +139,7 @@ export default function Navbar() {
             <button
                 type="button"
                 ref={menuButtonRef}
-                className="md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40"
+                className="relative z-10 md:hidden inline-flex items-center justify-center rounded-md p-2 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/40"
                 aria-label={mobileOpen ? "Close menu" : "Open menu"}
                 aria-expanded={mobileOpen}
                 onClick={() => {
@@ -144,7 +154,7 @@ export default function Navbar() {
             </button>
 
             {mobileOpen && (
-                <div className="md:hidden absolute top-full left-0 w-full bg-primary/95 backdrop-blur border-t border-white/10">
+                <div className="md:hidden absolute top-full left-0 z-20 w-full bg-primary/95 backdrop-blur border-t border-white/10">
                     <div className="px-4 py-4 flex flex-col gap-3 text-lg">
                         <NavLink ref={mobileFirstLinkRef} to="/" onClick={() => setMobileOpen(false)} className={({ isActive }) => `py-2 ${isActive ? "underline underline-offset-8 decoration-white/70" : ""}`}>Home</NavLink>
                         <NavLink to="/brothers" onClick={() => setMobileOpen(false)} className={({ isActive }) => `py-2 ${isActive ? "underline underline-offset-8 decoration-white/70" : ""}`}>Brothers</NavLink>

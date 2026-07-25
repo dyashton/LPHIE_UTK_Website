@@ -110,6 +110,34 @@ export default function Rush() {
         return () => clearInterval(interval);
     }, [rushImages, reducedMotion]);
 
+    // Brief hero beat, then glide to the interest form
+    // ponytail: native behavior:"smooth" jumps with body { overflow-x:hidden } — rAF ease instead
+    useEffect(() => {
+        if (reducedMotion) return;
+        let raf = 0;
+        const t = setTimeout(() => {
+            const el = document.getElementById("interest-form");
+            if (!el) return;
+            const startY = window.scrollY;
+            const targetY = Math.max(0, startY + el.getBoundingClientRect().top - 80);
+            const dist = targetY - startY;
+            if (Math.abs(dist) < 2) return;
+            const duration = 900;
+            const start = performance.now();
+            const easeOut = (x) => 1 - (1 - x) ** 3;
+            const step = (now) => {
+                const p = Math.min(1, (now - start) / duration);
+                window.scrollTo(0, startY + dist * easeOut(p));
+                if (p < 1) raf = requestAnimationFrame(step);
+            };
+            raf = requestAnimationFrame(step);
+        }, 700);
+        return () => {
+            clearTimeout(t);
+            cancelAnimationFrame(raf);
+        };
+    }, [reducedMotion]);
+
     const heroImageUrl = Array.isArray(rushImages) && rushImages.length ? rushImages[imgIndex % rushImages.length] : null;
     const offSeason = status === "ok" && upcomingRushEvents.length === 0;
     const cultureStrip = (galleryImages || []).slice(0, 4);

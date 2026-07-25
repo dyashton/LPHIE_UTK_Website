@@ -20,7 +20,7 @@ export default function Layout({ children }) {
 
             <CursorClouds />
 
-            <header className="absolute top-0 left-0 right-0 z-50 w-full">
+            <header className="fixed top-0 left-0 right-0 z-50 w-full overflow-visible">
                 <Navbar />
             </header>
             <div className="relative z-10 flex-1 min-w-0 overflow-x-hidden">
