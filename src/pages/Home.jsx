@@ -115,7 +115,7 @@ export default function Home() {
   const portraitBrothers = useMemo(() => {
     // Active house only (exclude alumni)
     return (brothers || [])
-      .filter((b) => b.position !== "Alumni" && images?.[b.lineName])
+      .filter((b) => b.position !== "Alumni" && b.position !== "Inactive" && images?.[b.lineName])
       .slice(0, 12)
   }, [brothers, images])
 
@@ -127,7 +127,7 @@ export default function Home() {
 
   const spotlightPool = useMemo(() => {
     const actives = (brothers || []).filter(
-      (b) => b.position !== "Alumni" && images?.[b.lineName]
+      (b) => b.position !== "Alumni" && b.position !== "Inactive" && images?.[b.lineName]
     )
     return actives.length ? actives : portraitBrothers
   }, [brothers, images, portraitBrothers])

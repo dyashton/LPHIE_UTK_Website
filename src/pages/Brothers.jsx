@@ -497,6 +497,7 @@ export default function Brothers() {
     const filtered = useMemo(() => {
         const q = search.trim().toLowerCase();
         return (brothers || []).filter((b) => {
+            if (b.position === "Inactive") return false;
             if (familyFilter !== "All" && b.family !== familyFilter) return false;
             if (classFilter !== "All" && b.crossingClass !== classFilter) return false;
             if (boardOnly && (b.position === "Alumni" || b.position === "Active")) return false;
@@ -506,7 +507,7 @@ export default function Brothers() {
         });
     }, [brothers, search, familyFilter, classFilter, boardOnly]);
 
-    const executiveBoard = filtered.filter(brother => (brother.position !== "Alumni" && brother.position !== "Active"));
+    const executiveBoard = filtered.filter(brother => (brother.position !== "Alumni" && brother.position !== "Active" && brother.position !== "Inactive"));
     const activeBrothers = filtered.filter(brother => brother.position === "Active");
     const alumniBrothers = filtered.filter(brother => brother.position === "Alumni");
 

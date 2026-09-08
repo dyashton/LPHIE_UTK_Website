@@ -78,7 +78,7 @@ export default function FamilyTree() {
     const [zoomNonce, setZoomNonce] = useState(0);
     const belowCanvasRef = useRef(null);
 
-    const { brothers, images } = useContext(BrothersContext) || {};
+    const { brothers, images, inactiveLineNames } = useContext(BrothersContext) || {};
 
     // Bring the canvas into view, then nudge React Flow to re-fit
     useEffect(() => {
@@ -140,13 +140,20 @@ export default function FamilyTree() {
         [byLineName, images, brothers]
     );
 
-    const { byId, children } = useMemo(() => indexRows(rawRows), [rawRows]);
+    // Hide inactive chapter brothers; leave cross-chapter tree nodes alone
+    const visibleRows = useMemo(() => {
+        const inactive = inactiveLineNames || new Set();
+        if (!inactive.size) return rawRows;
+        return rawRows.filter((r) => !inactive.has(r.brother));
+    }, [rawRows, inactiveLineNames]);
+
+    const { byId, children } = useMemo(() => indexRows(visibleRows), [visibleRows]);
 
     const treeData = useMemo(() => {
-        if (!rawRows.length) return [];
+        if (!visibleRows.length) return [];
         // Always keep full tree — family focus zooms the camera, it doesn't cut nodes
-        return buildTree(rawRows);
-    }, [rawRows]);
+        return buildTree(visibleRows);
+    }, [visibleRows]);
 
     const spotlightIds = useMemo(() => {
         if (!spotlightRoot) return new Set();
@@ -156,14 +163,14 @@ export default function FamilyTree() {
     const searchHits = useMemo(() => {
         const q = search.trim().toLowerCase();
         if (!q) return [];
-        return rawRows
+        return visibleRows
             .filter(
                 (r) =>
                     r.label?.toLowerCase().includes(q) ||
                     r.brother?.toLowerCase().includes(q)
             )
             .slice(0, 8);
-    }, [search, rawRows]);
+    }, [search, visibleRows]);
 
     const changeFamily = useCallback((val) => {
         setFamily(val);

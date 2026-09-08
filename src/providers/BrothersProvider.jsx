@@ -6,6 +6,7 @@ import { BrothersContext } from "./BrothersContext";
 
 export default function BrothersProvider({ children }) {
     const [brothers, setBrothers] = useState([]);
+    const [inactiveLineNames, setInactiveLineNames] = useState(() => new Set());
     const [images, setImages] = useState({});
     const [homeImages, setHomeImages] = useState([]);
     const [rushImages, setRushImages] = useState([]);
@@ -109,7 +110,17 @@ export default function BrothersProvider({ children }) {
             brother.setLittle(littleBrothers);
         });
 
-        setBrothers(brothersFromCsv);
+        // ponytail: Inactive stays in CSV/admin for records, but never on the public site
+        const inactive = new Set(
+            brothersFromCsv.filter((b) => b.position === "Inactive").map((b) => b.lineName)
+        );
+        const visible = brothersFromCsv.filter((b) => b.position !== "Inactive");
+        visible.forEach((brother) => {
+            brother.setBig(brother.bigs.filter((b) => b.position !== "Inactive"));
+            brother.setLittle(brother.littles.filter((b) => b.position !== "Inactive"));
+        });
+        setInactiveLineNames(inactive);
+        setBrothers(visible);
     }
 
     useEffect(() => {
@@ -155,6 +166,7 @@ export default function BrothersProvider({ children }) {
             value={{
                 brothers,
                 setBrothers,
+                inactiveLineNames,
                 images,
                 setImages,
                 homeImages,
