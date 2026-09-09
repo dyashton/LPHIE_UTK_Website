@@ -7,9 +7,18 @@ import { BrothersContext } from "../providers/BrothersContext"
 import PageContainer from "../components/PageContainer"
 import Reveal from "../components/Reveal"
 import InstagramStrip from "../components/InstagramStrip"
+import PortraitCornerTicks from "../components/PortraitCornerTicks"
+import cloud03 from "../assets/clouds/cloud-03.png"
+import cloud04 from "../assets/clouds/cloud-04.png"
+import cloud06 from "../assets/clouds/cloud-06.png"
+import cloud07 from "../assets/clouds/cloud-07.png"
 
 const MotionDiv = motion.div
 const MotionH1 = motion.h1
+
+const SPOTLIGHT_DWELL_MS = 5000
+const SPOTLIGHT_CLOUD_MS = 2600
+const SPOTLIGHT_SWAP_MS = 1200
 
 // ponytail: rAF scrollLeft marquee; pause on hover/interact so users can drag/wheel freely
 function useBrotherhoodAutoScroll(enabled) {
@@ -103,6 +112,8 @@ function useTimelineEvents() {
 export default function Home() {
   const [imgIndex, setImgIndex] = useState(0)
   const [spotlightIndex, setSpotlightIndex] = useState(0)
+  const [spotlightCloudsOn, setSpotlightCloudsOn] = useState(false)
+  const [spotlightCloudPass, setSpotlightCloudPass] = useState(0)
   const { homeImages, brothers, images, galleryImages, loading } = useContext(BrothersContext)
   const reducedMotion = useReducedMotion()
   const { events: timelineEvents, status: timelineStatus } = useTimelineEvents()
@@ -153,11 +164,45 @@ export default function Home() {
   }, [homeImages, reducedMotion])
 
   useEffect(() => {
-    if (reducedMotion || spotlightPool.length <= 1) return
-    const t = setInterval(() => {
-      setSpotlightIndex((i) => (i + 1) % spotlightPool.length)
-    }, 6000)
-    return () => clearInterval(t)
+    if (spotlightPool.length <= 1) return
+    if (reducedMotion) {
+      const t = setInterval(() => {
+        setSpotlightIndex((i) => (i + 1) % spotlightPool.length)
+      }, 6000)
+      return () => clearInterval(t)
+    }
+
+    let cancelled = false
+    const timeouts = new Set()
+    const later = (fn, ms) => {
+      const t = setTimeout(() => {
+        timeouts.delete(t)
+        fn()
+      }, ms)
+      timeouts.add(t)
+    }
+
+    const cycle = () => {
+      later(() => {
+        if (cancelled) return
+        setSpotlightCloudsOn(true)
+        setSpotlightCloudPass((k) => k + 1)
+        later(() => {
+          if (!cancelled) setSpotlightIndex((i) => (i + 1) % spotlightPool.length)
+        }, SPOTLIGHT_SWAP_MS)
+        later(() => {
+          if (cancelled) return
+          setSpotlightCloudsOn(false)
+          cycle()
+        }, SPOTLIGHT_CLOUD_MS)
+      }, SPOTLIGHT_DWELL_MS)
+    }
+
+    cycle()
+    return () => {
+      cancelled = true
+      timeouts.forEach(clearTimeout)
+    }
   }, [spotlightPool.length, reducedMotion])
 
   const heroImageUrl =
@@ -302,7 +347,7 @@ export default function Home() {
               View all brothers →
             </Link>
           </div>
-          <div ref={stripRef} className="mt-8 flex gap-3 overflow-x-auto pb-2">
+          <div ref={stripRef} className="mt-8 flex gap-3 overflow-x-auto py-2">
             {portraitBrothers.length === 0 && (
               <p className="text-text-secondary">{loading ? "Loading brothers…" : "Portraits coming soon."}</p>
             )}
@@ -310,15 +355,18 @@ export default function Home() {
               <Link
                 key={`${b.lineName}-${i}`}
                 to={`/brothers#${encodeURIComponent(b.lineName)}`}
-                className="shrink-0 w-28 sm:w-36 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                className="group shrink-0 w-28 sm:w-36 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
               >
-                <div className="aspect-3/4 overflow-hidden bg-primary">
-                  <img
-                    src={images[b.lineName]}
-                    alt={b.getFullName()}
-                    className="h-full w-full object-cover"
-                    loading="lazy"
-                  />
+                <div className="relative aspect-3/4">
+                  <div className="h-full w-full overflow-hidden bg-primary">
+                    <img
+                      src={images[b.lineName]}
+                      alt={b.getFullName()}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <PortraitCornerTicks size="sm" />
                 </div>
                 <p className="mt-2 text-sm font-cinzel text-accent truncate">&quot;{b.lineName}&quot;</p>
               </Link>
@@ -333,29 +381,143 @@ export default function Home() {
           <Reveal>
             <h2 className="font-cinzel text-3xl sm:text-4xl text-accent">Brother Spotlight</h2>
             {spotlight ? (
-              <Link
-                to={`/brothers#${encodeURIComponent(spotlight.lineName)}`}
-                className="mt-6 flex gap-5 items-start group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
-              >
-                <div className="w-28 h-36 sm:w-36 sm:h-44 shrink-0 overflow-hidden bg-primary">
-                  <img
-                    src={images[spotlight.lineName]}
-                    alt={spotlight.getFullName()}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div>
-                  <p className="text-xl sm:text-2xl text-text-primary">
-                    {spotlight.firstName}{" "}
-                    <span className="font-cinzel text-accent">&quot;{spotlight.lineName}&quot;</span>{" "}
-                    {spotlight.lastName}
-                  </p>
-                  <p className="mt-1 text-text-secondary">{spotlight.major}</p>
-                  <p className="mt-1 text-sm text-text-secondary">
-                    {spotlight.family} Family · {spotlight.getCrossingClass()}
-                  </p>
-                </div>
-              </Link>
+              <div className="mt-6">
+                <Link
+                  to={`/brothers#${encodeURIComponent(spotlight.lineName)}`}
+                  className="flex gap-5 items-start group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                >
+                  <div className="relative w-28 h-36 sm:w-36 sm:h-44 shrink-0">
+                    <MotionDiv
+                      key={spotlightCloudsOn ? `spotlight-fade-${spotlightCloudPass}` : "spotlight-idle"}
+                      className="h-full w-full overflow-hidden bg-primary"
+                      initial={{ opacity: 1 }}
+                      animate={
+                        spotlightCloudsOn
+                          ? { opacity: [1, 0, 0, 1] }
+                          : { opacity: 1 }
+                      }
+                      transition={
+                        spotlightCloudsOn
+                          ? {
+                              duration: SPOTLIGHT_CLOUD_MS / 1000,
+                              times: [0, 0.42, 0.55, 1],
+                              ease: "easeInOut",
+                            }
+                          : { duration: 0 }
+                      }
+                    >
+                      <img
+                        src={images[spotlight.lineName]}
+                        alt={spotlight.getFullName()}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </MotionDiv>
+                    <PortraitCornerTicks />
+
+                    {spotlightCloudsOn && (
+                      <div
+                        key={spotlightCloudPass}
+                        className="absolute inset-0 z-10 pointer-events-none overflow-visible"
+                        aria-hidden="true"
+                      >
+                        {/* Left: 3 + 7 — track width = portrait */}
+                        <MotionDiv
+                          className="absolute top-[6%] left-0 w-full flex justify-start"
+                          initial={{ x: "-90%", opacity: 0 }}
+                          animate={{
+                            x: ["-90%", "5%", "110%"],
+                            opacity: [0, 1, 0],
+                          }}
+                          transition={{
+                            duration: SPOTLIGHT_CLOUD_MS / 1000,
+                            times: [0, 0.45, 1],
+                            ease: "easeInOut",
+                          }}
+                        >
+                          <img src={cloud03} alt="" className="w-36 sm:w-44 h-auto max-w-none" />
+                        </MotionDiv>
+                        <MotionDiv
+                          className="absolute bottom-[2%] left-0 w-full flex justify-start"
+                          initial={{ x: "-95%", opacity: 0 }}
+                          animate={{
+                            x: ["-95%", "12%", "115%"],
+                            opacity: [0, 1, 0],
+                          }}
+                          transition={{
+                            duration: SPOTLIGHT_CLOUD_MS / 1000,
+                            times: [0, 0.45, 1],
+                            ease: "easeInOut",
+                            delay: 0.08,
+                          }}
+                        >
+                          <img src={cloud07} alt="" className="w-40 sm:w-48 h-auto max-w-none" />
+                        </MotionDiv>
+                        {/* Right: 6 + 4 */}
+                        <MotionDiv
+                          className="absolute top-[2%] left-0 w-full flex justify-end"
+                          initial={{ x: "90%", opacity: 0 }}
+                          animate={{
+                            x: ["90%", "-5%", "-110%"],
+                            opacity: [0, 1, 0],
+                          }}
+                          transition={{
+                            duration: SPOTLIGHT_CLOUD_MS / 1000,
+                            times: [0, 0.45, 1],
+                            ease: "easeInOut",
+                          }}
+                        >
+                          <img src={cloud06} alt="" className="w-36 sm:w-44 h-auto max-w-none" />
+                        </MotionDiv>
+                        <MotionDiv
+                          className="absolute bottom-[6%] left-0 w-full flex justify-end"
+                          initial={{ x: "95%", opacity: 0 }}
+                          animate={{
+                            x: ["95%", "-12%", "-115%"],
+                            opacity: [0, 1, 0],
+                          }}
+                          transition={{
+                            duration: SPOTLIGHT_CLOUD_MS / 1000,
+                            times: [0, 0.45, 1],
+                            ease: "easeInOut",
+                            delay: 0.08,
+                          }}
+                        >
+                          <img src={cloud04} alt="" className="w-40 sm:w-48 h-auto max-w-none" />
+                        </MotionDiv>
+                      </div>
+                    )}
+                  </div>
+
+                  <MotionDiv
+                    key={spotlightCloudsOn ? `spotlight-text-${spotlightCloudPass}` : "spotlight-text-idle"}
+                    initial={{ opacity: 1 }}
+                    animate={
+                      spotlightCloudsOn
+                        ? { opacity: [1, 0, 0, 1] }
+                        : { opacity: 1 }
+                    }
+                    transition={
+                      spotlightCloudsOn
+                        ? {
+                            duration: SPOTLIGHT_CLOUD_MS / 1000,
+                            times: [0, 0.42, 0.55, 1],
+                            ease: "easeInOut",
+                          }
+                        : { duration: 0 }
+                    }
+                  >
+                    <p className="text-xl sm:text-2xl text-text-primary">
+                      {spotlight.firstName}{" "}
+                      <span className="font-cinzel text-accent">&quot;{spotlight.lineName}&quot;</span>{" "}
+                      {spotlight.lastName}
+                    </p>
+                    <p className="mt-1 text-text-secondary">{spotlight.major}</p>
+                    <p className="mt-1 text-sm text-text-secondary">
+                      {spotlight.family} Family · {spotlight.getCrossingClass()}
+                    </p>
+                  </MotionDiv>
+                </Link>
+              </div>
             ) : (
               <p className="mt-4 text-text-secondary">Loading spotlight…</p>
             )}

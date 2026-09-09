@@ -1,5 +1,6 @@
 import Title from "../components/Title"
 import PageContainer from "../components/PageContainer"
+import PortraitCornerTicks from "../components/PortraitCornerTicks"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useContext, useRef, useEffect, useMemo } from "react"
 import { BrothersContext } from "../providers/BrothersContext"
@@ -298,7 +299,7 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
         <div
             ref={footprintRef}
             id={brother.lineName}
-            className={`relative ${portraitW} ${heightClass} shrink-0`}
+            className={`group relative ${portraitW} ${heightClass} shrink-0`}
         >
             <MotionDiv
                 className={`brother-card absolute top-0 ${cardAnchor} ${heightClass} bg-primary border-accent border-2 rounded-md overflow-hidden cursor-pointer ${isExtended ? "z-30" : "z-10 hover:z-20"}`}
@@ -355,6 +356,7 @@ function BrotherCard({ brother, images, jumpToBrother, extendedBrother, setExten
                             </div>
                         </div>
                     )}
+                    <PortraitCornerTicks size={isMobile ? "sm" : "md"} />
                     <div className="relative z-10 h-full flex flex-col items-center justify-end px-1 sm:px-3 bg-linear-to-b from-[rgba(0,0,0,0)] to-[rgba(33,33,33,1.5)] text-text-primary pb-1.5 sm:pb-3">
                         <div className="brother-position text-[0.65rem] sm:text-sm font-medium w-full leading-tight sm:leading-snug">{firstName}{" "}
                             <span className="text-accent font-cinzel">"{brother.lineName}"</span>{" "}
