@@ -11,7 +11,7 @@ import "reactflow/dist/style.css";
 import { createPortal } from "react-dom";
 import FamilyTreeNode, { FamilyHullNode } from "./FamilyTreeNode";
 import BrotherHoverCard from "./BrotherHoverCard";
-import { FAMILIES, FAMILY_ACCENT, REVEAL_MS_PER_DEPTH, resolveTreeEnrich } from "../utils/familyTree";
+import { FAMILIES, FAMILY_ACCENT, FAMILY_LAYOUT, REVEAL_MS_PER_DEPTH, resolveTreeEnrich } from "../utils/familyTree";
 
 const NODE_WIDTH = 200;
 const NODE_HEIGHT = 60;
@@ -53,7 +53,7 @@ function layout(nodes, edges) {
     });
 }
 
-/** Layout each family independently, then park them in TL / TR / BL / BR quadrants. */
+/** Layout each family independently, then park them per FAMILY_LAYOUT. */
 function layoutInQuadrants(nodes, edges) {
     const byFamily = new Map();
     for (const node of nodes) {
@@ -62,14 +62,9 @@ function layoutInQuadrants(nodes, edges) {
         byFamily.get(fam).push(node);
     }
 
-    const familyOrder = [
-        ...FAMILIES.filter((f) => byFamily.has(f)),
-        ...[...byFamily.keys()].filter((f) => !FAMILIES.includes(f)),
-    ];
+    const laidByName = new Map();
 
-    const laidFamilies = [];
-
-    for (const family of familyOrder) {
+    for (const family of byFamily.keys()) {
         const famNodes = byFamily.get(family) || [];
         if (!famNodes.length) continue;
         const ids = new Set(famNodes.map((n) => n.id));
@@ -89,53 +84,70 @@ function layoutInQuadrants(nodes, edges) {
             maxY = Math.max(maxY, n.position.y + NODE_HEIGHT);
         }
 
-        const normalized = laid.map((n) => ({
-            ...n,
-            position: {
-                x: n.position.x - minX,
-                y: n.position.y - minY,
-            },
-        }));
-        laidFamilies.push({
+        laidByName.set(family, {
             family,
-            nodes: normalized,
+            nodes: laid.map((n) => ({
+                ...n,
+                position: {
+                    x: n.position.x - minX,
+                    y: n.position.y - minY,
+                },
+            })),
             width: maxX - minX,
             height: maxY - minY,
         });
     }
 
-    // Quadrant slots: 0 TL, 1 TR, 2 BL, 3 BR
-    const slot = (i) => laidFamilies[i] || { width: 0, height: 0, nodes: [] };
-    const col0W = Math.max(slot(0).width, slot(2).width, 0);
-    const row0H = Math.max(slot(0).height, slot(1).height, 0);
-    const row1H = Math.max(slot(2).height, slot(3).height, 0);
+    const placed = new Set();
+    const rows = FAMILY_LAYOUT.map((row) =>
+        row.map((name) => laidByName.get(name)).filter(Boolean)
+    ).filter((row) => row.length);
 
-    const origins = [
-        { x: 0, y: 0 },
-        { x: col0W + QUADRANT_GAP, y: 0 },
-        { x: 0, y: row0H + QUADRANT_GAP },
-        { x: col0W + QUADRANT_GAP, y: row0H + QUADRANT_GAP },
-    ];
-    const cellW = [col0W, Math.max(slot(1).width, slot(3).width, 0), col0W, Math.max(slot(1).width, slot(3).width, 0)];
-    const cellH = [row0H, row0H, row1H, row1H];
+    // Any family not in FAMILY_LAYOUT appends as its own trailing row
+    for (const family of [
+        ...FAMILIES.filter((f) => laidByName.has(f)),
+        ...[...laidByName.keys()].filter((f) => !FAMILIES.includes(f)),
+    ]) {
+        if (placed.has(family) || rows.some((row) => row.some((f) => f.family === family))) continue;
+        rows.push([laidByName.get(family)]);
+    }
+    for (const row of rows) for (const f of row) placed.add(f.family);
+
+    const rowHeights = rows.map((row) => Math.max(0, ...row.map((f) => f.height)));
+    // Column widths from the widest cell in each column across all rows
+    const maxCols = Math.max(0, ...rows.map((r) => r.length));
+    const colWidths = Array.from({ length: maxCols }, (_, c) =>
+        Math.max(0, ...rows.map((row) => row[c]?.width || 0))
+    );
+    const colXs = colWidths.reduce((acc, _w, i) => {
+        acc.push(i === 0 ? 0 : acc[i - 1] + colWidths[i - 1] + QUADRANT_GAP);
+        return acc;
+    }, []);
+    const rowYs = rowHeights.reduce((acc, _h, i) => {
+        acc.push(i === 0 ? 0 : acc[i - 1] + rowHeights[i - 1] + QUADRANT_GAP);
+        return acc;
+    }, []);
+    // Center shorter rows (e.g. Bounce Back | Olympus over a 3-col bottom row)
+    const gridW = colXs[maxCols - 1] + colWidths[maxCols - 1];
 
     const positioned = [];
-    laidFamilies.forEach((fam, i) => {
-        const origin = origins[i] || {
-            x: (i % 2) * (col0W + QUADRANT_GAP),
-            y: Math.floor(i / 2) * (row0H + QUADRANT_GAP),
-        };
-        const ox = origin.x + Math.max(0, ((cellW[i] ?? fam.width) - fam.width) / 2);
-        const oy = origin.y + Math.max(0, ((cellH[i] ?? fam.height) - fam.height) / 2);
-        for (const n of fam.nodes) {
-            positioned.push({
-                ...n,
-                position: {
-                    x: n.position.x + ox,
-                    y: n.position.y + oy,
-                },
-            });
-        }
+    rows.forEach((row, r) => {
+        // Center shorter rows (Bounce Back | Olympus) over the 3-col bottom row
+        const slotSpanW = colXs[row.length - 1] + colWidths[row.length - 1];
+        const rowOffsetX = Math.max(0, (gridW - slotSpanW) / 2);
+        row.forEach((fam, c) => {
+            const ox = rowOffsetX + colXs[c] + Math.max(0, (colWidths[c] - fam.width) / 2);
+            const oy = rowYs[r] + Math.max(0, (rowHeights[r] - fam.height) / 2);
+            for (const n of fam.nodes) {
+                positioned.push({
+                    ...n,
+                    position: {
+                        x: n.position.x + ox,
+                        y: n.position.y + oy,
+                    },
+                });
+            }
+        });
     });
 
     return positioned;

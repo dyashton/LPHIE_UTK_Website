@@ -1,6 +1,12 @@
 /** Shared family-tree accents + lineage helpers */
 
-export const FAMILIES = ["Bounce Back", "Olympus", "Uji", "Flight Club", "H-Fam"];
+export const FAMILIES = ["Bounce Back", "Olympus", "Uji", "H-Fam", "Flight Club"];
+
+/** Family-tree overview grid (row-major). Empty slots are skipped. */
+export const FAMILY_LAYOUT = [
+  ["Bounce Back", "Olympus"],
+  ["Uji", "H-Fam", "Flight Club"],
+];
 
 export const FAMILY_ACCENT = {
   "Bounce Back": {
