@@ -421,6 +421,7 @@ const CLASS_SECTIONS = [
     { key: "Zeta", title: "Zeta Z-Fighter Class" },
     { key: "Eta", title: "Eta Edgerunner Class" },
     { key: "Theta", title: "Theta Titan Class" },
+    { key: "Iota", title: "Iota Itachi Class" },
 ]
 
 function BrotherSection({ title, list, images, jumpToBrother, extendedBrother, setExtendedBrother, onDeveloperOpen, isMobile }) {

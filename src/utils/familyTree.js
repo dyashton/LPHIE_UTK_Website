@@ -1,6 +1,6 @@
 /** Shared family-tree accents + lineage helpers */
 
-export const FAMILIES = ["Bounce Back", "Olympus", "Uji", "Flight Club"];
+export const FAMILIES = ["Bounce Back", "Olympus", "Uji", "Flight Club", "H-Fam"];
 
 export const FAMILY_ACCENT = {
   "Bounce Back": {
@@ -34,6 +34,14 @@ export const FAMILY_ACCENT = {
     hull: "bg-[#6B8CAE]/15 border-[#6B8CAE]/40",
     glow: "ring-4 ring-[#6B8CAE]/50 drop-shadow-[0_0_16px_rgba(107,140,174,0.75)]",
     edge: "#6B8CAE",
+  },
+  "H-Fam": {
+    hex: "#9A6B5C",
+    swatch: "bg-[#9A6B5C]",
+    stripe: "bg-[#9A6B5C]",
+    hull: "bg-[#9A6B5C]/15 border-[#9A6B5C]/40",
+    glow: "ring-4 ring-[#9A6B5C]/50 drop-shadow-[0_0_16px_rgba(154,107,92,0.75)]",
+    edge: "#9A6B5C",
   },
 };
 

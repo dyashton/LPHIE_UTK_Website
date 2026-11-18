@@ -20,6 +20,7 @@ function classLinkFromTitle(title) {
     "Zeta Z-Fighter Class": "Zeta",
     "Eta Edgerunner Class": "Eta",
     "Theta Titan Class": "Theta",
+    "Iota Itachi Class": "Iota",
   };
   return map[title] || null;
 }

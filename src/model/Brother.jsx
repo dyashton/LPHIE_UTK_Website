@@ -8,6 +8,7 @@ const crossingClasses = {
     "Zeta": "ZFighter",
     "Eta": "Edgerunners",
     "Theta": "Titan",
+    "Iota": "Itachi",
 }
 
 class Brother {
